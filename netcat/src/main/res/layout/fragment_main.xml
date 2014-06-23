@@ -6,11 +6,39 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.github.dddpaul.netcat.PlaceholderFragment">
+    tools:context="com.github.dddpaul.netcat.MainFragment">
 
     <TextView
-        android:id="@+id/section_label"
+        android:id="@+id/label_host"
+        android:text="@string/host"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
+    <EditText
+        android:id="@+id/et_host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/label_host"
+        android:layout_alignBottom="@+id/label_host"
+        android:layout_toRightOf="@+id/label_host" />
+
+    <Button
+        android:id="@+id/b_start"
+        android:text="@string/label_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:enabled="false"
+        android:textStyle="bold"
+        android:layout_below="@+id/label_host"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
