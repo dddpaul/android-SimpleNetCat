@@ -9,12 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class MainFragment extends Fragment
 {
+    protected NetCat netCat;
+
     @InjectView( R.id.et_host )
     protected EditText hostText;
 
@@ -26,6 +27,13 @@ public class MainFragment extends Fragment
     public static MainFragment newInstance()
     {
         return new MainFragment();
+    }
+
+    @Override
+    public void onCreate( Bundle savedInstanceState )
+    {
+        super.onCreate( savedInstanceState );
+        netCat = new NetCat();
     }
 
     @Override
@@ -46,7 +54,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                startNetcat( hostText.getText().toString() );
+                startNetCat( hostText.getText().toString() );
             }
         } );
         return view;
@@ -70,8 +78,10 @@ public class MainFragment extends Fragment
         startBtn.setEnabled( populated );
     }
 
-    private void startNetcat( String host )
+    private void startNetCat( String connectTo )
     {
-        Toast.makeText( getActivity(), host, Toast.LENGTH_LONG ).show();
+        // TODO: Make some validation
+        String[] tokens = connectTo.split( ":" );
+        netCat.execute( tokens );
     }
 }
