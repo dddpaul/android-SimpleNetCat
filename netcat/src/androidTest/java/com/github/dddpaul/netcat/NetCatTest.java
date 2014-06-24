@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 public class NetCatTest extends TestCase implements NetCatListener
 {
-    final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
+    private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
+
     final String HOST = "192.168.122.1";
     final String PORT = "9999";
 
@@ -18,7 +19,7 @@ public class NetCatTest extends TestCase implements NetCatListener
     @Override
     public void setUp() throws Exception
     {
-        netCat = new NetCat();
+        netCat = new NetCat( System.out );
         netCat.setListener( this );
     }
 

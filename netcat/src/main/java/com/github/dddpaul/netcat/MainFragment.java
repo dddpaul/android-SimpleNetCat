@@ -14,26 +14,15 @@ import butterknife.InjectView;
 
 public class MainFragment extends Fragment
 {
-    protected NetCat netCat;
-
     @InjectView( R.id.et_host )
     protected EditText hostText;
 
     @InjectView( R.id.b_start )
     protected Button startBtn;
 
-    public MainFragment() {}
-
     public static MainFragment newInstance()
     {
         return new MainFragment();
-    }
-
-    @Override
-    public void onCreate( Bundle savedInstanceState )
-    {
-        super.onCreate( savedInstanceState );
-        netCat = new NetCat();
     }
 
     @Override
@@ -54,7 +43,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                startNetCat( hostText.getText().toString() );
+                ( (MainActivity) getActivity() ).startNetCat( hostText.getText().toString() );
             }
         } );
         return view;
@@ -76,12 +65,5 @@ public class MainFragment extends Fragment
     {
         boolean populated = populated( hostText );
         startBtn.setEnabled( populated );
-    }
-
-    private void startNetCat( String connectTo )
-    {
-        // TODO: Make some validation
-        String[] tokens = connectTo.split( ":" );
-        netCat.execute( tokens );
     }
 }

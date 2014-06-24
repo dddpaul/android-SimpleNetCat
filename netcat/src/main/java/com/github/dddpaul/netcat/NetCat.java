@@ -12,14 +12,21 @@ import java.net.Socket;
 public class NetCat
 {
     private final String CLASS_NAME = getClass().getSimpleName();
+
     private NetCatListener listener;
+    private OutputStream output;
+
+    public NetCat( OutputStream output )
+    {
+        this.output = output;
+    }
 
     public void setListener( NetCatListener listener )
     {
         this.listener = listener;
     }
 
-    public void execute( String ... params)
+    public void execute( String ... params )
     {
         new NetCatTask().execute( params );
     }
@@ -59,7 +66,7 @@ public class NetCat
             InputStream input1 = System.in;
             OutputStream output1 = socket.getOutputStream();
             InputStream input2 = socket.getInputStream();
-            PrintStream output2 = System.out;
+            PrintStream output2 = new PrintStream( output );
 
             Thread thread1 = new Thread( new StreamTransferer( input1, output1 ) );
             thread1.setName( "Thread1: Local-Remote" );

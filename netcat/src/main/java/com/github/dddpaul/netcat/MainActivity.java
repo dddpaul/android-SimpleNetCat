@@ -5,11 +5,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener
+import java.io.IOException;
+import java.io.OutputStream;
+
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NetCatListener
 {
+    private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
+
     SectionsPagerAdapter adapter;
     ViewPager pager;
 
@@ -90,5 +97,40 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabReselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction )
     {
+    }
+
+    public void startNetCat( String connectTo )
+    {
+        // OutputStream to TextView in ResultFragment
+        OutputStream output = new OutputStream()
+        {
+            @Override
+            public void write( int oneByte ) throws IOException
+            {
+                TextView textView = (TextView) findViewById( R.id.result );
+                char ch = (char) oneByte;
+                textView.setText( textView.getText() + String.valueOf( ch ) );
+                System.out.write( oneByte );
+            }
+        };
+
+        // TODO: Make some validation
+        String[] tokens = connectTo.split( ":" );
+        NetCat netCat = new NetCat( output );
+        netCat.setListener( this );
+        netCat.execute( tokens );
+        pager.setCurrentItem( 1 );
+    }
+
+    @Override
+    public void netCatIsStarted() {}
+
+    @Override
+    public void netCatIsCompleted() {}
+
+    @Override
+    public void netCatIsFailed( Exception e )
+    {
+        Log.e( CLASS_NAME, e.getMessage() );
     }
 }
