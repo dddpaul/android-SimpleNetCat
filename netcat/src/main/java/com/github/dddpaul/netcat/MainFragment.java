@@ -2,6 +2,8 @@ package com.github.dddpaul.netcat;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +33,14 @@ public class MainFragment extends Fragment
     {
         View view = inflater.inflate( R.layout.fragment_main, container, false );
         ButterKnife.inject( this, view );
+        TextWatcher watcher = new TextWatcherAdapter()
+        {
+            public void afterTextChanged( final Editable editable )
+            {
+                updateUIWithValidation();
+            }
+        };
+        hostText.addTextChangedListener( watcher );
         startBtn.setOnClickListener( new View.OnClickListener()
         {
             @Override
@@ -42,8 +52,26 @@ public class MainFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        updateUIWithValidation();
+    }
+
+    private boolean populated( final EditText editText )
+    {
+        return editText.length() > 0;
+    }
+
+    private void updateUIWithValidation()
+    {
+        boolean populated = populated( hostText );
+        startBtn.setEnabled( populated );
+    }
+
     private void startNetcat( String host )
     {
-        Toast.makeText( getActivity(), host, Toast.LENGTH_LONG );
+        Toast.makeText( getActivity(), host, Toast.LENGTH_LONG ).show();
     }
 }
