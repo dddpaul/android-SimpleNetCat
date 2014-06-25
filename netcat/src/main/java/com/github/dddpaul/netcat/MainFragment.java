@@ -1,5 +1,6 @@
 package com.github.dddpaul.netcat;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -14,6 +15,8 @@ import butterknife.InjectView;
 
 public class MainFragment extends Fragment
 {
+    private OnFragmentInteractionListener callback;
+
     @InjectView( R.id.et_host )
     protected EditText hostText;
 
@@ -43,7 +46,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                ( (MainActivity) getActivity() ).startNetCat( hostText.getText().toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), hostText.getText().toString() );
             }
         } );
         return view;
@@ -54,6 +57,24 @@ public class MainFragment extends Fragment
     {
         super.onResume();
         updateUIWithValidation();
+    }
+
+    @Override
+    public void onAttach( Activity activity )
+    {
+        super.onAttach( activity );
+        try {
+            callback = (OnFragmentInteractionListener) activity;
+        } catch( ClassCastException e ) {
+            throw new ClassCastException( activity.toString() + " must implement OnFragmentInteractionListener" );
+        }
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        callback = null;
     }
 
     private boolean populated( final EditText editText )

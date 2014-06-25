@@ -5,22 +5,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NetCatListener
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, OnFragmentInteractionListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    ByteArrayOutputStream output;
     SectionsPagerAdapter adapter;
     ViewPager pager;
 
@@ -30,21 +21,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
-
-        // Set up the ViewPager with the sections adapter.
-        pager = (ViewPager) findViewById( R.id.pager );
-        pager.setAdapter( adapter );
-
-        // Set up the action bar.
+        // Set up the action bar
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
 
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
+        // Set up the ViewPager with the sections adapter
+        adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
+        pager = (ViewPager) findViewById( R.id.pager );
+        pager.setAdapter( adapter );
         pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
         {
             @Override
@@ -54,7 +38,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
         } );
 
-        // For each of the sections in the app, add a tab to the action bar.
+        // For each of the sections in the app, add a tab to the action bar
         for( int i = 0; i < adapter.getCount(); i++ ) {
             actionBar.addTab(
                     actionBar.newTab()
@@ -63,11 +47,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate( R.menu.main, menu );
         return true;
     }
@@ -75,9 +57,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public boolean onOptionsItemSelected( MenuItem item )
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if( id == R.id.action_settings ) {
             return true;
@@ -88,8 +67,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction )
     {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
         pager.setCurrentItem( tab.getPosition() );
     }
 
@@ -103,50 +80,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
     }
 
-    public void startNetCat( String connectTo )
+    @Override
+    public void onFragmentInteraction( int position )
     {
-        // TODO: Make some validation
-        String[] tokens = connectTo.split( ":" );
-        output = new ByteArrayOutputStream();
-        NetCat netCat = new NetCat( output );
-        netCat.setListener( this );
-        netCat.execute( tokens );
-        pager.setCurrentItem( 1 );
+        pager.setCurrentItem( position, false );
     }
 
     @Override
-    public void netCatIsStarted() {}
-
-    @Override
-    public void netCatIsCompleted()
+    public void onFragmentInteraction( int position, String connectTo )
     {
-        // OutputStream to TextView in ResultFragment
-        OutputStream resultStream = new OutputStream()
-        {
-            @Override
-            public void write( int oneByte ) throws IOException
-            {
-                TextView textView = (TextView) findViewById( R.id.result );
-                char ch = (char) oneByte;
-                textView.setText( textView.getText() + String.valueOf( ch ) );
-                System.out.write( oneByte );
-            }
-        };
-
-        try {
-            output.writeTo( resultStream );
-            Log.i( CLASS_NAME, "Data is written to result text view" );
-        } catch( IOException e ) {
-            // TODO: Normal logging
-            e.printStackTrace();
+        if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
+            ResultFragment fragment = (ResultFragment) adapter.getRegisteredFragment( position );
+            fragment.startNetCat( connectTo );
         }
-    }
-
-    @Override
-    public void netCatIsFailed( Exception e )
-    {
-        if( e.getMessage() != null ) {
-            Log.e( CLASS_NAME, e.getMessage() );
-        }
+        pager.setCurrentItem( position, false );
     }
 }

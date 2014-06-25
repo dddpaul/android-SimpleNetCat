@@ -47,7 +47,6 @@ public class NetCat
                 Socket socket = new Socket( host, port );
                 transferStreams( socket );
             } catch( Exception e ) {
-                e.printStackTrace();
                 exception = e;
             }
             return null;
@@ -56,13 +55,11 @@ public class NetCat
         @Override
         protected void onPostExecute( String result )
         {
-            Log.i( CLASS_NAME, "onPostExecute() is called" );
             if( exception == null ) {
                 Log.i( CLASS_NAME, "NetCat task is completed" );
                 listener.netCatIsCompleted();
             } else {
-                //Log.e( CLASS_NAME, exception.getMessage() );
-                Log.e( CLASS_NAME, "NetCat task is failed" );
+                Log.e( CLASS_NAME, exception.getMessage() );
                 listener.netCatIsFailed( exception );
             }
         }
