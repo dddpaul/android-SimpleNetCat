@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class NetCat
 {
-    public enum Op { CONNECT, LISTEN, SEND, RECEIVE }
+    public enum Op { CONNECT, LISTEN, RECEIVE, SEND }
 
     private final String CLASS_NAME = getClass().getSimpleName();
 
@@ -29,6 +29,11 @@ public class NetCat
         this.listener = listener;
     }
 
+    public void setInput( InputStream input )
+    {
+        this.input = input;
+    }
+
     public void execute( String ... params )
     {
         new NetCatTask().execute( params );
@@ -47,16 +52,28 @@ public class NetCat
         {
             try {
                 op = Op.valueOf( params[0] );
+                Log.d( CLASS_NAME, String.format( "Executing %s operation", op ));
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
                         int port = Integer.parseInt( params[2] );
-                        Log.i( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
+                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
                         socket = new Socket( host, port );
                         break;
                     case RECEIVE:
+                        Log.d( CLASS_NAME, "Socket connected = " + String.valueOf( socket.isConnected() ));
                         if( socket != null && socket.isConnected() ) {
-                            transferStreams( socket );
+                            Log.d( CLASS_NAME, String.format( "Receiving from %s:%d",
+                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
+                            receiveFromSocket();
+                        }
+                        break;
+                    case SEND:
+                        Log.d( CLASS_NAME, "Socket connected = " + String.valueOf( socket.isConnected() ));
+                        if( socket != null && socket.isConnected() ) {
+                            Log.d( CLASS_NAME, String.format( "Sending to %s:%d",
+                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
+                            sendToSocket();
                         }
                         break;
                 }
@@ -70,7 +87,7 @@ public class NetCat
         protected void onPostExecute( String result )
         {
             if( exception == null ) {
-                Log.i( CLASS_NAME, String.format( "%s task is completed", op ));
+                Log.d( CLASS_NAME, String.format( "%s operation is completed", op ));
                 listener.netCatIsCompleted( op );
             } else {
                 Log.e( CLASS_NAME, exception.getMessage() );
@@ -78,11 +95,22 @@ public class NetCat
             }
         }
 
-        private void transferStreams( Socket socket ) throws IOException, InterruptedException
+        private void receiveFromSocket() throws IOException
         {
-            InputStream input = socket.getInputStream();
+            BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
             PrintWriter writer = new PrintWriter( output );
+            transferStreams( reader, writer );
+        }
+
+        private void sendToSocket() throws IOException
+        {
             BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
+            PrintWriter writer = new PrintWriter( socket.getOutputStream() );
+            transferStreams( reader, writer );
+        }
+
+        private void transferStreams( BufferedReader reader, PrintWriter writer ) throws IOException
+        {
             String line;
             while( ( line = reader.readLine() ) != null ) {
                 writer.println( line );

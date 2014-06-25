@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
             ResultFragment fragment = (ResultFragment) adapter.getRegisteredFragment( position );
-            fragment.startNetCat( connectTo );
+            fragment.connect( connectTo );
         }
         pager.setCurrentItem( position, false );
     }

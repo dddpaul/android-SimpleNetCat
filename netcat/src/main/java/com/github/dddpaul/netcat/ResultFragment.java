@@ -15,6 +15,7 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,6 +58,14 @@ public class ResultFragment extends Fragment implements NetCatListener
             }
         };
         inputText.addTextChangedListener( watcher );
+        sendButton.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                send();
+            }
+        } );
         return view;
     }
 
@@ -65,16 +74,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onResume();
         updateUIWithValidation();
-    }
-
-    public void startNetCat( String connectTo )
-    {
-        // TODO: Make some validation
-        String[] tokens = connectTo.split( ":" );
-        output = new ByteArrayOutputStream();
-        netCat = new NetCat( output );
-        netCat.setListener( this );
-        netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
     @Override
@@ -102,10 +101,13 @@ public class ResultFragment extends Fragment implements NetCatListener
 
                 try {
                     output.writeTo( resultStream );
-                    Log.i( CLASS_NAME, "Data is written to result text view" );
+                    Log.i( CLASS_NAME, "Data is received and displayed" );
                 } catch( IOException e ) {
                     Log.e( CLASS_NAME, e.getMessage() );
                 }
+                break;
+            case SEND:
+                Log.i( CLASS_NAME, "Data is sent" );
                 break;
         }
     }
@@ -114,6 +116,24 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void netCatIsFailed( Exception e )
     {
         Toast.makeText( getActivity(), e.getMessage(), Toast.LENGTH_LONG ).show();
+    }
+
+    public void connect( String connectTo )
+    {
+        // TODO: Make some validation
+        String[] tokens = connectTo.split( ":" );
+        output = new ByteArrayOutputStream();
+        netCat = new NetCat( output );
+        netCat.setListener( this );
+        netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
+    }
+
+    private void send()
+    {
+        byte[] bytes = inputText.getText().toString().getBytes();
+        ByteArrayInputStream input = new ByteArrayInputStream( bytes );
+        netCat.setInput( input );
+        netCat.execute( SEND.toString() );
     }
 
     private void updateUIWithValidation()
