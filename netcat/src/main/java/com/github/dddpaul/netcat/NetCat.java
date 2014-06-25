@@ -3,10 +3,7 @@ package com.github.dddpaul.netcat;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 
 public class NetCat
@@ -15,6 +12,7 @@ public class NetCat
 
     private NetCatListener listener;
     private OutputStream output;
+    private Exception exception;
 
     public NetCat( OutputStream output )
     {
@@ -31,7 +29,7 @@ public class NetCat
         new NetCatTask().execute( params );
     }
 
-    public class NetCatTask extends AsyncTask<String, Void, Void>
+    public class NetCatTask extends AsyncTask<String, Void, String>
     {
         @Override
         protected void onPreExecute()
@@ -40,7 +38,7 @@ public class NetCat
         }
 
         @Override
-        protected Void doInBackground( String... params )
+        protected String doInBackground( String... params )
         {
             String host = params[0];
             int port = Integer.parseInt( params[1] );
@@ -49,18 +47,39 @@ public class NetCat
                 Socket socket = new Socket( host, port );
                 transferStreams( socket );
             } catch( Exception e ) {
-                Log.e( CLASS_NAME, e.getMessage() );
-                listener.netCatIsFailed( e );
+                e.printStackTrace();
+                exception = e;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute( Void aVoid )
+        protected void onPostExecute( String result )
         {
-            listener.netCatIsCompleted();
+            Log.i( CLASS_NAME, "onPostExecute() is called" );
+            if( exception == null ) {
+                Log.i( CLASS_NAME, "NetCat task is completed" );
+                listener.netCatIsCompleted();
+            } else {
+                //Log.e( CLASS_NAME, exception.getMessage() );
+                Log.e( CLASS_NAME, "NetCat task is failed" );
+                listener.netCatIsFailed( exception );
+            }
         }
 
+        private void transferStreams( Socket socket ) throws IOException, InterruptedException
+        {
+            InputStream input = socket.getInputStream();
+            PrintWriter writer = new PrintWriter( output );
+            BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
+            String line;
+            while( ( line = reader.readLine() ) != null ) {
+                writer.println( line );
+                writer.flush();
+            }
+        }
+
+/*
         private void transferStreams( Socket socket ) throws IOException, InterruptedException
         {
             InputStream input1 = System.in;
@@ -80,5 +99,6 @@ public class NetCat
             // Wait till other side is terminated
             thread2.join();
         }
+*/
     }
 }

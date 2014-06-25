@@ -10,13 +10,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
+    ByteArrayOutputStream output;
     SectionsPagerAdapter adapter;
     ViewPager pager;
 
@@ -101,8 +105,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void startNetCat( String connectTo )
     {
+        // TODO: Make some validation
+        String[] tokens = connectTo.split( ":" );
+        output = new ByteArrayOutputStream();
+        NetCat netCat = new NetCat( output );
+        netCat.setListener( this );
+        netCat.execute( tokens );
+        pager.setCurrentItem( 1 );
+    }
+
+    @Override
+    public void netCatIsStarted() {}
+
+    @Override
+    public void netCatIsCompleted()
+    {
         // OutputStream to TextView in ResultFragment
-        OutputStream output = new OutputStream()
+        OutputStream resultStream = new OutputStream()
         {
             @Override
             public void write( int oneByte ) throws IOException
@@ -114,23 +133,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
         };
 
-        // TODO: Make some validation
-        String[] tokens = connectTo.split( ":" );
-        NetCat netCat = new NetCat( output );
-        netCat.setListener( this );
-        netCat.execute( tokens );
-        pager.setCurrentItem( 1 );
+        try {
+            output.writeTo( resultStream );
+            Log.i( CLASS_NAME, "Data is written to result text view" );
+        } catch( IOException e ) {
+            // TODO: Normal logging
+            e.printStackTrace();
+        }
     }
-
-    @Override
-    public void netCatIsStarted() {}
-
-    @Override
-    public void netCatIsCompleted() {}
 
     @Override
     public void netCatIsFailed( Exception e )
     {
-        Log.e( CLASS_NAME, e.getMessage() );
+        if( e.getMessage() != null ) {
+            Log.e( CLASS_NAME, e.getMessage() );
+        }
     }
 }

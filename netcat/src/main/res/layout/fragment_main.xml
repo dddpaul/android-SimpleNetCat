@@ -23,11 +23,12 @@
 
     <EditText
         android:id="@+id/et_host"
+        android:text="192.168.122.1:9999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/label_host"
         android:layout_alignBottom="@+id/label_host"
-        android:layout_toRightOf="@+id/label_host" />
+        android:layout_toRightOf="@+id/label_host"/>
 
     <Button
         android:id="@+id/b_start"
