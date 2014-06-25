@@ -19,11 +19,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static com.github.dddpaul.netcat.NetCat.Op.*;
+
 public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private ByteArrayOutputStream output;
+    private NetCat netCat;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -69,34 +72,41 @@ public class ResultFragment extends Fragment implements NetCatListener
         // TODO: Make some validation
         String[] tokens = connectTo.split( ":" );
         output = new ByteArrayOutputStream();
-        NetCat netCat = new NetCat( output );
+        netCat = new NetCat( output );
         netCat.setListener( this );
-        netCat.execute( tokens );
+        netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
     @Override
     public void netCatIsStarted() {}
 
     @Override
-    public void netCatIsCompleted()
+    public void netCatIsCompleted( NetCat.Op op )
     {
-        // OutputStream to TextView in ResultFragment
-        OutputStream resultStream = new OutputStream()
-        {
-            @Override
-            public void write( int oneByte ) throws IOException
-            {
-                char ch = (char) oneByte;
-                outputView.setText( outputView.getText() + String.valueOf( ch ) );
-                System.out.write( oneByte );
-            }
-        };
+        switch( op ) {
+            case CONNECT:
+                netCat.execute( RECEIVE.toString() );
+                break;
+            case RECEIVE:
+                // OutputStream to TextView in ResultFragment
+                OutputStream resultStream = new OutputStream()
+                {
+                    @Override
+                    public void write( int oneByte ) throws IOException
+                    {
+                        char ch = (char) oneByte;
+                        outputView.setText( outputView.getText() + String.valueOf( ch ) );
+                        System.out.write( oneByte );
+                    }
+                };
 
-        try {
-            output.writeTo( resultStream );
-            Log.i( CLASS_NAME, "Data is written to result text view" );
-        } catch( IOException e ) {
-            Log.e( CLASS_NAME, e.getMessage() );
+                try {
+                    output.writeTo( resultStream );
+                    Log.i( CLASS_NAME, "Data is written to result text view" );
+                } catch( IOException e ) {
+                    Log.e( CLASS_NAME, e.getMessage() );
+                }
+                break;
         }
     }
 

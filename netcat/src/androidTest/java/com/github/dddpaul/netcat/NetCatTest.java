@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dddpaul.netcat.NetCat.Op.*;
+
 public class NetCatTest extends TestCase implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
@@ -30,7 +32,7 @@ public class NetCatTest extends TestCase implements NetCatListener
     }
 
     @Override
-    public void netCatIsCompleted()
+    public void netCatIsCompleted( NetCat.Op op )
     {
         signal.countDown();
     }
@@ -42,9 +44,9 @@ public class NetCatTest extends TestCase implements NetCatListener
         signal.countDown();
     }
 
-    public void test() throws InterruptedException
+    public void testConnect() throws InterruptedException
     {
-        netCat.execute( HOST, PORT );
+        netCat.execute( CONNECT.toString(), HOST, PORT );
         signal.await( 10, TimeUnit.SECONDS );
     }
 }

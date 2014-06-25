@@ -8,9 +8,14 @@ import java.net.Socket;
 
 public class NetCat
 {
+    public enum Op { CONNECT, LISTEN, SEND, RECEIVE }
+
     private final String CLASS_NAME = getClass().getSimpleName();
 
     private NetCatListener listener;
+    private Socket socket;
+    private Op op;
+    private InputStream input;
     private OutputStream output;
     private Exception exception;
 
@@ -40,12 +45,21 @@ public class NetCat
         @Override
         protected String doInBackground( String... params )
         {
-            String host = params[0];
-            int port = Integer.parseInt( params[1] );
             try {
-                Log.i( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ));
-                Socket socket = new Socket( host, port );
-                transferStreams( socket );
+                op = Op.valueOf( params[0] );
+                switch( op ) {
+                    case CONNECT:
+                        String host = params[1];
+                        int port = Integer.parseInt( params[2] );
+                        Log.i( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
+                        socket = new Socket( host, port );
+                        break;
+                    case RECEIVE:
+                        if( socket != null && socket.isConnected() ) {
+                            transferStreams( socket );
+                        }
+                        break;
+                }
             } catch( Exception e ) {
                 exception = e;
             }
@@ -56,8 +70,8 @@ public class NetCat
         protected void onPostExecute( String result )
         {
             if( exception == null ) {
-                Log.i( CLASS_NAME, "NetCat task is completed" );
-                listener.netCatIsCompleted();
+                Log.i( CLASS_NAME, String.format( "%s task is completed", op ));
+                listener.netCatIsCompleted( op );
             } else {
                 Log.e( CLASS_NAME, exception.getMessage() );
                 listener.netCatIsFailed( exception );
