@@ -9,8 +9,8 @@
     tools:context="com.github.dddpaul.netcat.MainFragment">
 
     <TextView
-        android:id="@+id/label_host"
-        android:text="@string/host"
+        android:id="@+id/tv_connect_to"
+        android:text="@string/label_connect_to"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
@@ -22,13 +22,13 @@
         android:layout_alignParentStart="true" />
 
     <EditText
-        android:id="@+id/et_host"
+        android:id="@+id/et_connect_to"
         android:text="192.168.122.1:9999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/label_host"
-        android:layout_alignBottom="@+id/label_host"
-        android:layout_toRightOf="@+id/label_host"/>
+        android:layout_alignTop="@+id/tv_connect_to"
+        android:layout_alignBottom="@+id/tv_connect_to"
+        android:layout_toRightOf="@+id/tv_connect_to"/>
 
     <Button
         android:id="@+id/b_start"
@@ -39,7 +39,7 @@
         android:padding="10dp"
         android:enabled="false"
         android:textStyle="bold"
-        android:layout_below="@+id/label_host"
+        android:layout_below="@+id/tv_connect_to"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 </RelativeLayout>

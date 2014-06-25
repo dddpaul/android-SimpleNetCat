@@ -2,10 +2,11 @@
 <resources>
 
     <string name="app_name">Simple NetCat</string>
-    <string name="title_section1">Parameters</string>
+    <string name="title_section1">Main</string>
     <string name="title_section2">Result</string>
     <string name="action_settings">Settings</string>
-    <string name="host">Host</string>
+    <string name="label_connect_to">Connect to</string>
     <string name="label_start">Start</string>
+    <string name="label_send">Send</string>
 
 </resources>

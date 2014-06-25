@@ -17,11 +17,11 @@ public class MainFragment extends Fragment
 {
     private OnFragmentInteractionListener callback;
 
-    @InjectView( R.id.et_host )
-    protected EditText hostText;
+    @InjectView( R.id.et_connect_to)
+    protected EditText connectToText;
 
     @InjectView( R.id.b_start )
-    protected Button startBtn;
+    protected Button startButton;
 
     public static MainFragment newInstance()
     {
@@ -40,13 +40,13 @@ public class MainFragment extends Fragment
                 updateUIWithValidation();
             }
         };
-        hostText.addTextChangedListener( watcher );
-        startBtn.setOnClickListener( new View.OnClickListener()
+        connectToText.addTextChangedListener( watcher );
+        startButton.setOnClickListener( new View.OnClickListener()
         {
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), hostText.getText().toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), connectToText.getText().toString() );
             }
         } );
         return view;
@@ -77,14 +77,9 @@ public class MainFragment extends Fragment
         callback = null;
     }
 
-    private boolean populated( final EditText editText )
-    {
-        return editText.length() > 0;
-    }
-
     private void updateUIWithValidation()
     {
-        boolean populated = populated( hostText );
-        startBtn.setEnabled( populated );
+        boolean populated = Utils.populated( connectToText );
+        startButton.setEnabled( populated );
     }
 }

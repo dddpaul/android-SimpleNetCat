@@ -2,10 +2,14 @@ package com.github.dddpaul.netcat;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
@@ -21,8 +25,14 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     private ByteArrayOutputStream output;
 
-    @InjectView( R.id.result )
-    protected TextView resultView;
+    @InjectView( R.id.et_input )
+    protected EditText inputText;
+
+    @InjectView( R.id.tv_output )
+    protected TextView outputView;
+
+    @InjectView( R.id.b_send )
+    protected Button sendButton;
 
     public ResultFragment() {}
 
@@ -36,7 +46,22 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         View view = inflater.inflate( R.layout.fragment_result, container, false );
         ButterKnife.inject( this, view );
+        TextWatcher watcher = new TextWatcherAdapter()
+        {
+            public void afterTextChanged( final Editable editable )
+            {
+                updateUIWithValidation();
+            }
+        };
+        inputText.addTextChangedListener( watcher );
         return view;
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        updateUIWithValidation();
     }
 
     public void startNetCat( String connectTo )
@@ -62,7 +87,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             public void write( int oneByte ) throws IOException
             {
                 char ch = (char) oneByte;
-                resultView.setText( resultView.getText() + String.valueOf( ch ) );
+                outputView.setText( outputView.getText() + String.valueOf( ch ) );
                 System.out.write( oneByte );
             }
         };
@@ -79,5 +104,11 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void netCatIsFailed( Exception e )
     {
         Toast.makeText( getActivity(), e.getMessage(), Toast.LENGTH_LONG ).show();
+    }
+
+    private void updateUIWithValidation()
+    {
+        boolean populated = Utils.populated( inputText );
+        sendButton.setEnabled( populated );
     }
 }
