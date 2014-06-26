@@ -1,5 +1,6 @@
 package com.github.dddpaul.netcat;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -28,6 +29,7 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
+    private OnFragmentInteractionListener callback;
     private ByteArrayOutputStream output;
     private NetCater netCat;
 
@@ -90,6 +92,24 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
+    public void onAttach( Activity activity )
+    {
+        super.onAttach( activity );
+        try {
+            callback = (OnFragmentInteractionListener) activity;
+        } catch( ClassCastException e ) {
+            throw new ClassCastException( activity.toString() + " must implement OnFragmentInteractionListener" );
+        }
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+        callback = null;
+    }
+
+    @Override
     public void netCatIsStarted() {}
 
     @Override
@@ -102,6 +122,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 netCat.setSocket( socket );
                 netCat.setOutput( output );
                 netCat.execute( RECEIVE.toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ) );
                 updateUIWithValidation();
                 break;
             case RECEIVE:
@@ -163,6 +184,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             sendButton.setEnabled( Utils.populated( inputText ) );
             disconnectButton.setEnabled( true );
         } else {
+            sendButton.setEnabled( false );
             disconnectButton.setEnabled( false );
         }
     }

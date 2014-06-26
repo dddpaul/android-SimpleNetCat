@@ -93,6 +93,5 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             ResultFragment fragment = (ResultFragment) adapter.getRegisteredFragment( position );
             fragment.connect( connectTo );
         }
-        pager.setCurrentItem( position, false );
     }
 }
