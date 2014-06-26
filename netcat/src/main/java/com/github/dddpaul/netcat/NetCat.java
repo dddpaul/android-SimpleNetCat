@@ -6,9 +6,7 @@ import android.util.Log;
 import java.io.*;
 import java.net.Socket;
 
-import static com.github.dddpaul.netcat.NetCater.*;
-
-public class NetCat
+public class NetCat implements NetCater
 {
     private final String CLASS_NAME = getClass().getSimpleName();
 
@@ -37,6 +35,7 @@ public class NetCat
         this.output = output;
     }
 
+    @Override
     public void execute( String ... params )
     {
         // Serial execution
@@ -68,7 +67,6 @@ public class NetCat
                         result.object = new Socket( host, port );
                         break;
                     case RECEIVE:
-                        Log.d( CLASS_NAME, "Socket connected = " + String.valueOf( socket.isConnected() ));
                         if( socket != null && socket.isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Receiving from %s:%d",
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
@@ -76,13 +74,19 @@ public class NetCat
                         }
                         break;
                     case SEND:
-                        Log.d( CLASS_NAME, "Socket connected = " + String.valueOf( socket.isConnected() ));
                         if( socket != null && socket.isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Sending to %s:%d",
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
                             sendToSocket();
                         }
                         break;
+                    case DISCONNECT:
+                        if( socket != null && socket.isConnected() ) {
+                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s:%d",
+                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
+                            socket.shutdownOutput();
+                            socket.close();
+                        }
                 }
             } catch( Exception e ) {
                 result.exception = e;

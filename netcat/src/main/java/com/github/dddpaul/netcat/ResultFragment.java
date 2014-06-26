@@ -40,6 +40,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     @InjectView( R.id.b_send )
     protected Button sendButton;
 
+    @InjectView( R.id.b_disconnect )
+    protected Button disconnectButton;
+
     public ResultFragment() {}
 
     public static ResultFragment newInstance()
@@ -66,6 +69,14 @@ public class ResultFragment extends Fragment implements NetCatListener
             public void onClick( View v )
             {
                 send();
+            }
+        } );
+        disconnectButton.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                disconnect();
             }
         } );
         return view;
@@ -107,13 +118,12 @@ public class ResultFragment extends Fragment implements NetCatListener
 
                 try {
                     output.writeTo( resultStream );
-                    Log.i( CLASS_NAME, "Data is received and displayed" );
                 } catch( IOException e ) {
                     Log.e( CLASS_NAME, e.getMessage() );
                 }
                 break;
-            case SEND:
-                Log.i( CLASS_NAME, "Data is sent" );
+            case DISCONNECT:
+                Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
                 break;
         }
     }
@@ -138,6 +148,11 @@ public class ResultFragment extends Fragment implements NetCatListener
         ByteArrayInputStream input = new ByteArrayInputStream( bytes );
         netCat.setInput( input );
         netCat.execute( SEND.toString() );
+    }
+
+    private void disconnect()
+    {
+        netCat.execute( DISCONNECT.toString() );
     }
 
     private void updateUIWithValidation()

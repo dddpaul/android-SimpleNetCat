@@ -8,5 +8,6 @@
     <string name="label_connect_to">Connect to</string>
     <string name="label_start">Start</string>
     <string name="label_send">Send</string>
+    <string name="label_disconnect">Disconnect</string>
 
 </resources>

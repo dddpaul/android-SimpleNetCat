@@ -21,7 +21,7 @@
     <Button
         android:id="@+id/b_send"
         android:text="@string/label_send"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
@@ -30,6 +30,19 @@
         android:layout_below="@+id/et_input"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/b_disconnect"
+        android:text="@string/label_disconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:enabled="true"
+        android:textStyle="bold"
+        android:layout_alignTop="@+id/b_send"
+        android:layout_alignRight="@+id/et_input"
+        android:layout_alignEnd="@+id/et_input" />
 
     <TextView
         android:id="@+id/tv_output"

@@ -6,7 +6,9 @@ import static com.github.dddpaul.netcat.Utils.isNotEmpty;
 
 public interface NetCater
 {
-    enum Op { CONNECT, LISTEN, RECEIVE, SEND }
+    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
+
+    public void execute( String ... params );
 
     class Result
     {
