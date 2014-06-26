@@ -18,4 +18,9 @@ public class Utils
     {
         return editText.length() > 0;
     }
+
+    public static boolean connected( NetCater netCat )
+    {
+        return netCat != null && netCat.isConnected();
+    }
 }

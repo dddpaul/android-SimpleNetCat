@@ -1,5 +1,7 @@
 package com.github.dddpaul.netcat;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import static com.github.dddpaul.netcat.Utils.isNotEmpty;
@@ -9,6 +11,10 @@ public interface NetCater
     enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
 
     public void execute( String ... params );
+    public void setSocket( Socket socket );
+    public void setInput( InputStream input );
+    public void setOutput( OutputStream input );
+    public boolean isConnected();
 
     class Result
     {

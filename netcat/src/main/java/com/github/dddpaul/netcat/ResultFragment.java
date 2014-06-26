@@ -29,7 +29,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private ByteArrayOutputStream output;
-    private NetCat netCat;
+    private NetCater netCat;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -102,6 +102,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 netCat.setSocket( socket );
                 netCat.setOutput( output );
                 netCat.execute( RECEIVE.toString() );
+                updateUIWithValidation();
                 break;
             case RECEIVE:
                 // OutputStream to TextView in ResultFragment
@@ -124,6 +125,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
+                updateUIWithValidation();
                 break;
         }
     }
@@ -157,7 +159,11 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     private void updateUIWithValidation()
     {
-        boolean populated = Utils.populated( inputText );
-        sendButton.setEnabled( populated );
+        if( Utils.connected( netCat )) {
+            sendButton.setEnabled( Utils.populated( inputText ) );
+            disconnectButton.setEnabled( true );
+        } else {
+            disconnectButton.setEnabled( false );
+        }
     }
 }

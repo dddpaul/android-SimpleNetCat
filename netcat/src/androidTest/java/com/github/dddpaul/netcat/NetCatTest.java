@@ -16,7 +16,7 @@ public class NetCatTest extends TestCase implements NetCatListener
     final String HOST = "192.168.122.1";
     final String PORT = "9999";
 
-    NetCat netCat;
+    NetCater netCat;
     CountDownLatch signal;
 
     @Override

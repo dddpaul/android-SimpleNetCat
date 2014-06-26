@@ -20,16 +20,19 @@ public class NetCat implements NetCater
         this.listener = listener;
     }
 
+    @Override
     public void setSocket( Socket socket )
     {
         this.socket = socket;
     }
 
+    @Override
     public void setInput( InputStream input )
     {
         this.input = input;
     }
 
+    @Override
     public void setOutput( OutputStream output )
     {
         this.output = output;
@@ -42,6 +45,12 @@ public class NetCat implements NetCater
         //new NetCatTask().execute( params );
         // Parallel execution
         new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
+    }
+
+    @Override
+    public boolean isConnected()
+    {
+        return socket != null && socket.isConnected();
     }
 
     public class NetCatTask extends AsyncTask<String, Void, Result>
@@ -86,6 +95,7 @@ public class NetCat implements NetCater
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
                             socket.shutdownOutput();
                             socket.close();
+                            setSocket( null );
                         }
                 }
             } catch( Exception e ) {

@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
-        android:enabled="true"
+        android:enabled="false"
         android:textStyle="bold"
         android:layout_alignTop="@+id/b_send"
         android:layout_alignRight="@+id/et_input"
