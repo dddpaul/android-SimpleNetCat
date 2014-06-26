@@ -6,7 +6,8 @@ import junit.framework.TestCase;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dddpaul.netcat.NetCat.Op.*;
+import static com.github.dddpaul.netcat.NetCater.Op.*;
+import static com.github.dddpaul.netcat.NetCater.Result;
 
 public class NetCatTest extends TestCase implements NetCatListener
 {
@@ -21,8 +22,7 @@ public class NetCatTest extends TestCase implements NetCatListener
     @Override
     public void setUp() throws Exception
     {
-        netCat = new NetCat( System.out );
-        netCat.setListener( this );
+        netCat = new NetCat( this );
     }
 
     @Override
@@ -32,15 +32,15 @@ public class NetCatTest extends TestCase implements NetCatListener
     }
 
     @Override
-    public void netCatIsCompleted( NetCat.Op op )
+    public void netCatIsCompleted( Result result )
     {
         signal.countDown();
     }
 
     @Override
-    public void netCatIsFailed( Exception e )
+    public void netCatIsFailed( Result e )
     {
-        Log.e( CLASS_NAME, e.getMessage() );
+        Log.e( CLASS_NAME, e.getErrorMessage() );
         signal.countDown();
     }
 

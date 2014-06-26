@@ -19,8 +19,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 
-import static com.github.dddpaul.netcat.NetCat.Op.*;
+import static com.github.dddpaul.netcat.NetCater.Op.*;
+import static com.github.dddpaul.netcat.NetCater.Result;
 
 public class ResultFragment extends Fragment implements NetCatListener
 {
@@ -80,10 +82,14 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void netCatIsStarted() {}
 
     @Override
-    public void netCatIsCompleted( NetCat.Op op )
+    public void netCatIsCompleted( Result result )
     {
-        switch( op ) {
+        switch( result.op ) {
             case CONNECT:
+                Socket socket = result.getSocket();
+                output = new ByteArrayOutputStream();
+                netCat.setSocket( socket );
+                netCat.setOutput( output );
                 netCat.execute( RECEIVE.toString() );
                 break;
             case RECEIVE:
@@ -113,18 +119,16 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
-    public void netCatIsFailed( Exception e )
+    public void netCatIsFailed( Result result )
     {
-        Toast.makeText( getActivity(), e.getMessage(), Toast.LENGTH_LONG ).show();
+        Toast.makeText( getActivity(), result.getErrorMessage(), Toast.LENGTH_LONG ).show();
     }
 
     public void connect( String connectTo )
     {
         // TODO: Make some validation
         String[] tokens = connectTo.split( ":" );
-        output = new ByteArrayOutputStream();
-        netCat = new NetCat( output );
-        netCat.setListener( this );
+        netCat = new NetCat( this );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 

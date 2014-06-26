@@ -6,27 +6,25 @@ import android.util.Log;
 import java.io.*;
 import java.net.Socket;
 
+import static com.github.dddpaul.netcat.NetCater.*;
+
 public class NetCat
 {
-    public enum Op { CONNECT, LISTEN, RECEIVE, SEND }
-
     private final String CLASS_NAME = getClass().getSimpleName();
 
     private NetCatListener listener;
     private Socket socket;
-    private Op op;
     private InputStream input;
     private OutputStream output;
-    private Exception exception;
 
-    public NetCat( OutputStream output )
-    {
-        this.output = output;
-    }
-
-    public void setListener( NetCatListener listener )
+    public NetCat( NetCatListener listener )
     {
         this.listener = listener;
+    }
+
+    public void setSocket( Socket socket )
+    {
+        this.socket = socket;
     }
 
     public void setInput( InputStream input )
@@ -34,12 +32,17 @@ public class NetCat
         this.input = input;
     }
 
+    public void setOutput( OutputStream output )
+    {
+        this.output = output;
+    }
+
     public void execute( String ... params )
     {
         new NetCatTask().execute( params );
     }
 
-    public class NetCatTask extends AsyncTask<String, Void, String>
+    public class NetCatTask extends AsyncTask<String, Void, Result>
     {
         @Override
         protected void onPreExecute()
@@ -48,17 +51,18 @@ public class NetCat
         }
 
         @Override
-        protected String doInBackground( String... params )
+        protected Result doInBackground( String... params )
         {
+            Op op = Op.valueOf( params[0] );
+            Result result = new Result( op );
             try {
-                op = Op.valueOf( params[0] );
                 Log.d( CLASS_NAME, String.format( "Executing %s operation", op ));
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
                         int port = Integer.parseInt( params[2] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
-                        socket = new Socket( host, port );
+                        result.object = new Socket( host, port );
                         break;
                     case RECEIVE:
                         Log.d( CLASS_NAME, "Socket connected = " + String.valueOf( socket.isConnected() ));
@@ -78,20 +82,20 @@ public class NetCat
                         break;
                 }
             } catch( Exception e ) {
-                exception = e;
+                result.exception = e;
             }
-            return null;
+            return result;
         }
 
         @Override
-        protected void onPostExecute( String result )
+        protected void onPostExecute( Result result )
         {
-            if( exception == null ) {
-                Log.d( CLASS_NAME, String.format( "%s operation is completed", op ));
-                listener.netCatIsCompleted( op );
+            if( result.exception == null ) {
+                Log.d( CLASS_NAME, String.format( "%s operation is completed", result.op ));
+                listener.netCatIsCompleted( result );
             } else {
-                Log.e( CLASS_NAME, exception.getMessage() );
-                listener.netCatIsFailed( exception );
+                Log.e( CLASS_NAME, result.getErrorMessage() );
+                listener.netCatIsFailed( result );
             }
         }
 
