@@ -39,7 +39,10 @@ public class NetCat
 
     public void execute( String ... params )
     {
-        new NetCatTask().execute( params );
+        // Serial execution
+        //new NetCatTask().execute( params );
+        // Parallel execution
+        new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
 
     public class NetCatTask extends AsyncTask<String, Void, Result>
