@@ -123,7 +123,6 @@ public class ResultFragment extends Fragment implements NetCatListener
                 netCat.setOutput( output );
                 netCat.execute( RECEIVE.toString() );
                 callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ) );
-                updateUIWithValidation();
                 break;
             case RECEIVE:
                 // OutputStream to TextView in ResultFragment
@@ -144,11 +143,14 @@ public class ResultFragment extends Fragment implements NetCatListener
                     Log.e( CLASS_NAME, e.getMessage() );
                 }
                 break;
+            case SEND:
+                inputText.setText( "" );
+                break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
-                updateUIWithValidation();
                 break;
         }
+        updateUIWithValidation();
     }
 
     @Override
