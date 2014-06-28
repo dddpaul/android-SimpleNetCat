@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class NetCat implements NetCater
@@ -73,7 +74,9 @@ public class NetCat implements NetCater
                         String host = params[1];
                         int port = Integer.parseInt( params[2] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
-                        result.object = new Socket( host, port );
+                        Socket newSocket = new Socket();
+                        newSocket.connect( new InetSocketAddress( host, port ), 3000 );
+                        result.object = newSocket;
                         break;
                     case RECEIVE:
                         if( socket != null && socket.isConnected() ) {

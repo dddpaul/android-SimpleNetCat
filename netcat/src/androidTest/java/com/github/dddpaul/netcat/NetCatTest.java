@@ -13,10 +13,11 @@ public class NetCatTest extends TestCase implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    final String HOST = "192.168.122.1";
+    final String HOST = "192.168.0.100";
     final String PORT = "9999";
 
     NetCater netCat;
+    Result result;
     CountDownLatch signal;
 
     @Override
@@ -34,13 +35,15 @@ public class NetCatTest extends TestCase implements NetCatListener
     @Override
     public void netCatIsCompleted( Result result )
     {
+        this.result = result;
         signal.countDown();
     }
 
     @Override
-    public void netCatIsFailed( Result e )
+    public void netCatIsFailed( Result result )
     {
-        Log.e( CLASS_NAME, e.getErrorMessage() );
+        this.result = result;
+        Log.e( CLASS_NAME, result.getErrorMessage() );
         signal.countDown();
     }
 
@@ -48,5 +51,10 @@ public class NetCatTest extends TestCase implements NetCatListener
     {
         netCat.execute( CONNECT.toString(), HOST, PORT );
         signal.await( 10, TimeUnit.SECONDS );
+        assertNotNull( result );
+        assertEquals( CONNECT, result.op );
+        if( result.exception == null ) {
+            assertNotNull( result.getSocket() );
+        }
     }
 }
