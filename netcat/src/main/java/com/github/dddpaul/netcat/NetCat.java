@@ -9,6 +9,8 @@ import java.net.Socket;
 
 public class NetCat implements NetCater
 {
+    public NetCatTask task;
+
     private final String CLASS_NAME = getClass().getSimpleName();
 
     private NetCatListener listener;
@@ -19,6 +21,7 @@ public class NetCat implements NetCater
     public NetCat( NetCatListener listener )
     {
         this.listener = listener;
+        task = new NetCatTask();
     }
 
     @Override
@@ -45,7 +48,7 @@ public class NetCat implements NetCater
         // Serial execution
         //new NetCatTask().execute( params );
         // Parallel execution
-        new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
+        task.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
 
     @Override

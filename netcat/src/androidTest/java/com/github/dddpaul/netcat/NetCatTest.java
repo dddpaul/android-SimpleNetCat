@@ -1,7 +1,16 @@
 package com.github.dddpaul.netcat;
 
 import android.util.Log;
-import junit.framework.TestCase;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAsyncTask;
+import org.robolectric.shadows.ShadowLog;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -9,21 +18,26 @@ import java.util.concurrent.TimeUnit;
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 
-public class NetCatTest extends TestCase implements NetCatListener
+@Config( emulateSdk = 18 )
+@RunWith( RobolectricTestRunner.class )
+public class NetCatTest extends Assert implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     final String HOST = "192.168.0.100";
     final String PORT = "9999";
 
-    NetCater netCat;
+    ShadowAsyncTask<String, Void, Result> shadowTask;
+    NetCat netCat;
     Result result;
     CountDownLatch signal;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
+        ShadowLog.stream = System.out;
         netCat = new NetCat( this );
+        shadowTask = Robolectric.shadowOf( netCat.task );
     }
 
     @Override
@@ -47,10 +61,11 @@ public class NetCatTest extends TestCase implements NetCatListener
         signal.countDown();
     }
 
+    @Test
     public void testConnect() throws InterruptedException
     {
-        netCat.execute( CONNECT.toString(), HOST, PORT );
-        signal.await( 10, TimeUnit.SECONDS );
+        shadowTask.execute( CONNECT.toString(), HOST, PORT );
+        signal.await( 5, TimeUnit.SECONDS );
         assertNotNull( result );
         assertEquals( CONNECT, result.op );
         if( result.exception == null ) {
