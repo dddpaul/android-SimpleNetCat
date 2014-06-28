@@ -3,6 +3,7 @@ build
 jniLibs
 libs
 out
+local.properties
 
 # IDEA project settings
 .idea
