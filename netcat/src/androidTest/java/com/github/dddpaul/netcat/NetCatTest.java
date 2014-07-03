@@ -37,7 +37,8 @@ public class NetCatTest extends Assert implements NetCatListener
     {
         ShadowLog.stream = System.out;
         netCat = new NetCat( this );
-        shadowTask = Robolectric.shadowOf( netCat.task );
+        NetCat.NetCatTask task = netCat.new NetCatTask();
+        shadowTask = Robolectric.shadowOf( task );
     }
 
     @Override
