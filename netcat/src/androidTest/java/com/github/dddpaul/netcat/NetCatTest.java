@@ -109,35 +109,36 @@ public class NetCatTest extends Assert implements NetCatListener
 
         } while( !INPUT_TEST.equals( line ));
 
-        // Prepare to receive string from nc process
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        netCat.setOutput( output );
-        final CountDownLatch internalLatch = new CountDownLatch( 1 );
+        // Send string from nc process
+        process.getOutputStream().write( INPUT_NC.getBytes() );
+        process.getOutputStream().flush();
         new Thread( new Runnable()
         {
             @Override
             public void run()
             {
-                ShadowAsyncTask<String, Void, Result> shadowReceiveTask =
-                        Robolectric.shadowOf( netCat.new NetCatTask() );
-                shadowReceiveTask.execute( RECEIVE.toString() );
-                internalLatch.countDown();
+                try {
+                    Thread.sleep( 500 );
+                } catch( Exception e ) {
+                    e.printStackTrace();
+                }
+                process.destroy();
             }
         }).start();
-        Log.i( CLASS_NAME, "RECEIVE - waiting on internal latch" );
-        internalLatch.await( 5, TimeUnit.SECONDS );
-        Log.i( CLASS_NAME, "RECEIVE - waiting on external latch" );
+
+        // Prepare to receive string from nc process
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        netCat.setOutput( output );
+        shadowTask.execute( RECEIVE.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
         assertEquals( RECEIVE, result.op );
-
-        // Send string from nc process
-        process.getOutputStream().write( INPUT_NC.getBytes() );
+        line = new String( output.toByteArray() ).trim();
+        Log.i( CLASS_NAME, line  );
+        assertEquals( INPUT_NC, line );
 
         disconnect();
-
-        assertEquals( INPUT_NC, new String( output.toByteArray() ));
     }
 
     public Socket connect() throws InterruptedException
