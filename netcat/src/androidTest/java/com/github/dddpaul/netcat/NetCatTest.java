@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -12,9 +13,14 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAsyncTask;
 import org.robolectric.shadows.ShadowLog;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,20 +31,34 @@ import static com.github.dddpaul.netcat.NetCater.Result;
 @RunWith( RobolectricTestRunner.class )
 public class NetCatTest extends Assert implements NetCatListener
 {
-    private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
-    private final String INPUT = "Input string";
+    final static String INPUT_TEST = "Input from this test";
+    final static String INPUT_NC = "Input from netcat process";
+    final static String HOST = "192.168.0.100";
+    final static String PORT = "9999";
+    final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    final String HOST = "192.168.0.100";
-    final String PORT = "9999";
+    static List<String> nc = new ArrayList<>();
 
     ShadowAsyncTask<String, Void, Result> shadowTask;
     NetCat netCat;
     Result result;
-    CountDownLatch signal;
+    CountDownLatch latch;
+    Process process;
+
+    @BeforeClass
+    public static void init()
+    {
+        nc.add( "nc" );
+        nc.add( "-v" );
+        nc.add( "-l" );
+        nc.add( "-p" );
+        nc.add( PORT );
+    }
 
     @Before
     public void setUp() throws Exception
     {
+        process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
         ShadowLog.stream = System.out;
         netCat = new NetCat( this );
         NetCat.NetCatTask task = netCat.new NetCatTask();
@@ -48,14 +68,14 @@ public class NetCatTest extends Assert implements NetCatListener
     @Override
     public void netCatIsStarted()
     {
-        signal = new CountDownLatch( 1 );
+        latch = new CountDownLatch( 1 );
     }
 
     @Override
     public void netCatIsCompleted( Result result )
     {
         this.result = result;
-        signal.countDown();
+        latch.countDown();
     }
 
     @Override
@@ -63,44 +83,82 @@ public class NetCatTest extends Assert implements NetCatListener
     {
         this.result = result;
         Log.e( CLASS_NAME, result.getErrorMessage() );
-        signal.countDown();
+        latch.countDown();
     }
 
     @Test
-    public void testConnect() throws InterruptedException
-    {
-        connect();
-    }
-
-    @Test
-    public void testSend() throws InterruptedException, IOException
+    public void test() throws InterruptedException, IOException
     {
         Socket socket = connect();
         netCat.setSocket( socket );
-        netCat.setInput( new ByteArrayInputStream( INPUT.getBytes() ));
+
+        // Send string to nc process
+        netCat.setInput( new ByteArrayInputStream( INPUT_TEST.getBytes() ));
         shadowTask.execute( SEND.toString() );
-        signal.await( 5, TimeUnit.SECONDS );
+        latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
         assertEquals( SEND, result.op );
-        if( result.exception == null ) {
-            byte[] buf = new byte[1024];
-            String output = new String( buf );
-            assertEquals( INPUT, output );
-        }
+
+        // Get received string by nc process
+        BufferedReader b = new BufferedReader( new InputStreamReader( process.getInputStream() ));
+        String line;
+        do {
+            line = b.readLine();
+            Log.i( CLASS_NAME, line  );
+
+        } while( !INPUT_TEST.equals( line ));
+
+        // Prepare to receive string from nc process
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        netCat.setOutput( output );
+        final CountDownLatch internalLatch = new CountDownLatch( 1 );
+        new Thread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ShadowAsyncTask<String, Void, Result> shadowReceiveTask =
+                        Robolectric.shadowOf( netCat.new NetCatTask() );
+                shadowReceiveTask.execute( RECEIVE.toString() );
+                internalLatch.countDown();
+            }
+        }).start();
+        Log.i( CLASS_NAME, "RECEIVE - waiting on internal latch" );
+        internalLatch.await( 5, TimeUnit.SECONDS );
+        Log.i( CLASS_NAME, "RECEIVE - waiting on external latch" );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertEquals( RECEIVE, result.op );
+
+        // Send string from nc process
+        process.getOutputStream().write( INPUT_NC.getBytes() );
+
+        disconnect();
+
+        assertEquals( INPUT_NC, new String( output.toByteArray() ));
     }
 
     public Socket connect() throws InterruptedException
     {
         shadowTask.execute( CONNECT.toString(), HOST, PORT );
-        signal.await( 5, TimeUnit.SECONDS );
+        latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
+        assertNull( result.exception );
         assertEquals( CONNECT, result.op );
-        if( result.exception == null ) {
-            assertNotNull( result.getSocket() );
-            return result.getSocket();
-        }
-        return null;
+        assertNotNull( result.getSocket() );
+        return result.getSocket();
+    }
+
+    public void disconnect() throws InterruptedException
+    {
+        shadowTask.execute( DISCONNECT.toString() );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertEquals( DISCONNECT, result.op );
     }
 }
