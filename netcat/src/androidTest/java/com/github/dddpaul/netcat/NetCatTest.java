@@ -12,6 +12,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAsyncTask;
 import org.robolectric.shadows.ShadowLog;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +26,7 @@ import static com.github.dddpaul.netcat.NetCater.Result;
 public class NetCatTest extends Assert implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
+    private final String INPUT = "Input string";
 
     final String HOST = "192.168.0.100";
     final String PORT = "9999";
@@ -65,12 +69,38 @@ public class NetCatTest extends Assert implements NetCatListener
     @Test
     public void testConnect() throws InterruptedException
     {
+        connect();
+    }
+
+    @Test
+    public void testSend() throws InterruptedException, IOException
+    {
+        Socket socket = connect();
+        netCat.setSocket( socket );
+        netCat.setInput( new ByteArrayInputStream( INPUT.getBytes() ));
+        shadowTask.execute( SEND.toString() );
+        signal.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertEquals( SEND, result.op );
+        if( result.exception == null ) {
+            byte[] buf = new byte[1024];
+            String output = new String( buf );
+            assertEquals( INPUT, output );
+        }
+    }
+
+    public Socket connect() throws InterruptedException
+    {
         shadowTask.execute( CONNECT.toString(), HOST, PORT );
         signal.await( 5, TimeUnit.SECONDS );
+
         assertNotNull( result );
         assertEquals( CONNECT, result.op );
         if( result.exception == null ) {
             assertNotNull( result.getSocket() );
+            return result.getSocket();
         }
+        return null;
     }
 }
