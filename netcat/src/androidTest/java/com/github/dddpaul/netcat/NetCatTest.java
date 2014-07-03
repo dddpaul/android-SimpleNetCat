@@ -7,10 +7,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowAsyncTask;
 import org.robolectric.shadows.ShadowLog;
 
 import java.io.BufferedReader;
@@ -39,8 +37,8 @@ public class NetCatTest extends Assert implements NetCatListener
 
     static List<String> nc = new ArrayList<>();
 
-    ShadowAsyncTask<String, Void, Result> shadowTask;
     NetCat netCat;
+    NetCat.NetCatTask netCatTask;
     Result result;
     CountDownLatch latch;
     Process process;
@@ -63,8 +61,7 @@ public class NetCatTest extends Assert implements NetCatListener
         process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
         ShadowLog.stream = System.out;
         netCat = new NetCat( this );
-        NetCat.NetCatTask task = netCat.new NetCatTask();
-        shadowTask = Robolectric.shadowOf( task );
+        netCatTask = netCat.new NetCatTask();
     }
 
     @Override
@@ -96,7 +93,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         // Send string to nc process
         netCat.setInput( new ByteArrayInputStream( INPUT_TEST.getBytes() ));
-        shadowTask.execute( SEND.toString() );
+        netCatTask.execute( SEND.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -131,7 +128,7 @@ public class NetCatTest extends Assert implements NetCatListener
         // Prepare to receive string from nc process
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         netCat.setOutput( output );
-        shadowTask.execute( RECEIVE.toString() );
+        netCatTask.execute( RECEIVE.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -145,7 +142,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
     public Socket connect() throws InterruptedException
     {
-        shadowTask.execute( CONNECT.toString(), HOST, PORT );
+        netCatTask.execute( CONNECT.toString(), HOST, PORT );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -157,7 +154,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
     public void disconnect() throws InterruptedException
     {
-        shadowTask.execute( DISCONNECT.toString() );
+        netCatTask.execute( DISCONNECT.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
