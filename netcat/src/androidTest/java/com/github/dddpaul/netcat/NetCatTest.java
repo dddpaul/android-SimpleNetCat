@@ -33,7 +33,7 @@ public class NetCatTest extends Assert implements NetCatListener
 {
     final static String INPUT_TEST = "Input from this test";
     final static String INPUT_NC = "Input from netcat process";
-    final static String HOST = "192.168.0.100";
+    final static String HOST = "localhost";
     final static String PORT = "9999";
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
@@ -45,13 +45,15 @@ public class NetCatTest extends Assert implements NetCatListener
     CountDownLatch latch;
     Process process;
 
+    /**
+     * Require netcat-openbsd package for Debian/Ubuntu
+     */
     @BeforeClass
     public static void init()
     {
         nc.add( "nc" );
         nc.add( "-v" );
         nc.add( "-l" );
-        nc.add( "-p" );
         nc.add( PORT );
     }
 
