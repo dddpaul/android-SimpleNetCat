@@ -11,6 +11,7 @@ public interface NetCater
     enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
 
     public void execute( String ... params );
+    public void executeParallel( String ... params );
     public void setSocket( Socket socket );
     public void setInput( InputStream input );
     public void setOutput( OutputStream input );

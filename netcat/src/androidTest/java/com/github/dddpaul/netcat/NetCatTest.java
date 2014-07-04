@@ -37,8 +37,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
     static List<String> nc = new ArrayList<>();
 
-    NetCat netCat;
-    NetCat.NetCatTask netCatTask;
+    NetCater netCat;
     Result result;
     CountDownLatch latch;
     Process process;
@@ -61,7 +60,6 @@ public class NetCatTest extends Assert implements NetCatListener
         process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
         ShadowLog.stream = System.out;
         netCat = new NetCat( this );
-        netCatTask = netCat.new NetCatTask();
     }
 
     @Override
@@ -93,7 +91,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         // Send string to nc process
         netCat.setInput( new ByteArrayInputStream( INPUT_TEST.getBytes() ));
-        netCatTask.execute( SEND.toString() );
+        netCat.execute( SEND.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -128,7 +126,7 @@ public class NetCatTest extends Assert implements NetCatListener
         // Prepare to receive string from nc process
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         netCat.setOutput( output );
-        netCatTask.execute( RECEIVE.toString() );
+        netCat.execute( RECEIVE.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -142,7 +140,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
     public Socket connect() throws InterruptedException
     {
-        netCatTask.execute( CONNECT.toString(), HOST, PORT );
+        netCat.execute( CONNECT.toString(), HOST, PORT );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -154,7 +152,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
     public void disconnect() throws InterruptedException
     {
-        netCatTask.execute( DISCONNECT.toString() );
+        netCat.execute( DISCONNECT.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );

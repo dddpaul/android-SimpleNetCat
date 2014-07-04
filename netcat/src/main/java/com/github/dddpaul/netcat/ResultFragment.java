@@ -121,7 +121,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 output = new ByteArrayOutputStream();
                 netCat.setSocket( socket );
                 netCat.setOutput( output );
-                netCat.execute( RECEIVE.toString() );
+                netCat.executeParallel( RECEIVE.toString() );
                 callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ) );
                 break;
             case RECEIVE:

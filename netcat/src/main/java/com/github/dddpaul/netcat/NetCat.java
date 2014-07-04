@@ -42,9 +42,12 @@ public class NetCat implements NetCater
     @Override
     public void execute( String ... params )
     {
-        // Serial execution
-        //new NetCatTask().execute( params );
-        // Parallel execution
+        new NetCatTask().execute( params );
+    }
+
+    @Override
+    public void executeParallel( String ... params )
+    {
         new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
 
