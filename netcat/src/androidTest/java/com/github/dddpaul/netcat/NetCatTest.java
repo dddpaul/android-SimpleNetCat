@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
+import static org.hamcrest.core.Is.is;
 
 @Config( emulateSdk = 18 )
 @RunWith( RobolectricTestRunner.class )
@@ -130,10 +131,10 @@ public class NetCatTest extends Assert implements NetCatListener
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
-        assertEquals( RECEIVE, result.op );
+        assertThat( result.op, is( RECEIVE ));
         line = new String( output.toByteArray() ).trim();
         Log.i( CLASS_NAME, line  );
-        assertEquals( INPUT_NC, line );
+        assertThat( line, is( INPUT_NC ));
 
         disconnect();
     }
@@ -145,7 +146,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         assertNotNull( result );
         assertNull( result.exception );
-        assertEquals( CONNECT, result.op );
+        assertThat( result.op, is( CONNECT ));
         assertNotNull( result.getSocket() );
         return result.getSocket();
     }
@@ -157,6 +158,6 @@ public class NetCatTest extends Assert implements NetCatListener
 
         assertNotNull( result );
         assertNull( result.exception );
-        assertEquals( DISCONNECT, result.op );
+        assertThat( result.op, is( DISCONNECT ));
     }
 }
