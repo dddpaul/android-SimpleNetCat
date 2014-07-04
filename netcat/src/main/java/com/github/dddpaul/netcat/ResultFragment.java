@@ -144,6 +144,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         switch( result.op ) {
             case CONNECT:
+            case LISTEN:
                 Socket socket = result.getSocket();
                 output = new ByteArrayOutputStream();
                 netCat.setSocket( socket );
@@ -192,6 +193,13 @@ public class ResultFragment extends Fragment implements NetCatListener
         String[] tokens = connectTo.split( ":" );
         netCat = new NetCat( this );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
+    }
+
+    public void listen( String port )
+    {
+        // TODO: Make some validation
+        netCat = new NetCat( this );
+        netCat.execute( LISTEN.toString(), port );
     }
 
     private void send()

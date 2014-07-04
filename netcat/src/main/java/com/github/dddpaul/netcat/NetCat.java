@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class NetCat implements NetCater
@@ -72,13 +73,22 @@ public class NetCat implements NetCater
             Result result = new Result( op );
             try {
                 Log.d( CLASS_NAME, String.format( "Executing %s operation", op ));
+                int port;
+                Socket newSocket;
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
-                        int port = Integer.parseInt( params[2] );
+                        port = Integer.parseInt( params[2] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
-                        Socket newSocket = new Socket();
+                        newSocket = new Socket();
                         newSocket.connect( new InetSocketAddress( host, port ), 3000 );
+                        result.object = newSocket;
+                        break;
+                    case LISTEN:
+                        port = Integer.parseInt( params[1] );
+                        Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
+                        ServerSocket serverSocket = new ServerSocket( port );
+                        newSocket = serverSocket.accept();
                         result.object = newSocket;
                         break;
                     case RECEIVE:

@@ -8,8 +8,9 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.github.dddpaul.netcat.MainFragment">
 
+    <!-- Connect -->
     <TextView
-        android:id="@+id/tv_connect_to"
+        android:id="@+id/tv_connect"
         android:text="@string/label_connect_to"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,20 +27,56 @@
         android:text="192.168.0.100:9999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tv_connect_to"
-        android:layout_alignBottom="@+id/tv_connect_to"
-        android:layout_toRightOf="@+id/tv_connect_to"/>
+        android:layout_alignTop="@+id/tv_connect"
+        android:layout_alignBottom="@+id/tv_connect"
+        android:layout_toRightOf="@+id/tv_connect"/>
 
     <Button
-        android:id="@+id/b_start"
-        android:text="@string/label_start"
+        android:id="@+id/b_connect"
+        android:text="@string/label_connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
         android:enabled="false"
         android:textStyle="bold"
-        android:layout_below="@+id/tv_connect_to"
+        android:layout_below="@+id/tv_connect"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <!-- Listen -->
+    <TextView
+        android:id="@+id/tv_listen"
+        android:text="@string/label_listen_on"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/b_connect"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/et_listen_on"
+        android:text="9999"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tv_listen"
+        android:layout_alignBottom="@+id/tv_listen"
+        android:layout_toRightOf="@+id/tv_listen"/>
+
+    <Button
+        android:id="@+id/b_listen"
+        android:text="@string/label_listen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:enabled="false"
+        android:textStyle="bold"
+        android:layout_below="@+id/tv_listen"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 </RelativeLayout>

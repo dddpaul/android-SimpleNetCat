@@ -13,6 +13,8 @@ import android.widget.EditText;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import static com.github.dddpaul.netcat.NetCater.Op.*;
+
 public class MainFragment extends Fragment
 {
     private OnFragmentInteractionListener callback;
@@ -20,8 +22,14 @@ public class MainFragment extends Fragment
     @InjectView( R.id.et_connect_to)
     protected EditText connectToText;
 
-    @InjectView( R.id.b_start )
-    protected Button startButton;
+    @InjectView( R.id.b_connect)
+    protected Button connectButton;
+
+    @InjectView( R.id.et_listen_on)
+    protected EditText listenOnText;
+
+    @InjectView( R.id.b_listen)
+    protected Button listenButton;
 
     public static MainFragment newInstance()
     {
@@ -41,12 +49,21 @@ public class MainFragment extends Fragment
             }
         };
         connectToText.addTextChangedListener( watcher );
-        startButton.setOnClickListener( new View.OnClickListener()
+        connectButton.setOnClickListener( new View.OnClickListener()
         {
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), connectToText.getText().toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), CONNECT, connectToText.getText().toString() );
+            }
+        } );
+        listenOnText.addTextChangedListener( watcher );
+        listenButton.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), LISTEN, listenOnText.getText().toString() );
             }
         } );
         return view;
@@ -80,6 +97,6 @@ public class MainFragment extends Fragment
     private void updateUIWithValidation()
     {
         boolean populated = Utils.populated( connectToText );
-        startButton.setEnabled( populated );
+        connectButton.setEnabled( populated );
     }
 }

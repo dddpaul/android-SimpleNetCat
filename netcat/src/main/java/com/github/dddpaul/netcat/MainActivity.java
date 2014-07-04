@@ -87,11 +87,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction( int position, String connectTo )
+    public void onFragmentInteraction( int position, NetCat.Op op, String data )
     {
         if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
             ResultFragment fragment = (ResultFragment) adapter.getRegisteredFragment( position );
-            fragment.connect( connectTo );
+            switch( op ) {
+                case CONNECT:
+                    fragment.connect( data );
+                    break;
+                case LISTEN:
+                    fragment.listen( data );
+                    break;
+            }
         }
     }
 }
