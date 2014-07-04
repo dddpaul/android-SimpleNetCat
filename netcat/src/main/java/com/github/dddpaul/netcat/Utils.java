@@ -1,6 +1,6 @@
 package com.github.dddpaul.netcat;
 
-import android.widget.EditText;
+import android.widget.TextView;
 
 public class Utils
 {
@@ -14,9 +14,9 @@ public class Utils
         return !isEmpty( str );
     }
 
-    public static boolean populated( EditText editText )
+    public static boolean populated( TextView view )
     {
-        return editText.length() > 0;
+        return view.length() > 0;
     }
 
     public static boolean connected( NetCater netCat )

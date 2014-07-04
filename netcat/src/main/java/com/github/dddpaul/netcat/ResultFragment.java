@@ -1,6 +1,9 @@
 package com.github.dddpaul.netcat;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -13,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -32,24 +36,37 @@ public class ResultFragment extends Fragment implements NetCatListener
     private OnFragmentInteractionListener callback;
     private ByteArrayOutputStream output;
     private NetCater netCat;
+    private ClipboardManager clipboard;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
 
-    @InjectView( R.id.tv_output )
+    @InjectView(R.id.tv_output)
     protected TextView outputView;
 
-    @InjectView( R.id.b_send )
+    @InjectView(R.id.b_send)
     protected Button sendButton;
 
     @InjectView( R.id.b_disconnect )
     protected Button disconnectButton;
 
-    public ResultFragment() {}
+    @InjectView( R.id.b_copy )
+    protected Button copyButton;
+
+    public ResultFragment()
+    {
+    }
 
     public static ResultFragment newInstance()
     {
         return new ResultFragment();
+    }
+
+    @Override
+    public void onCreate( Bundle savedInstanceState )
+    {
+        super.onCreate( savedInstanceState );
+        clipboard = (ClipboardManager) getActivity().getSystemService( Context.CLIPBOARD_SERVICE );
     }
 
     @Override
@@ -81,6 +98,14 @@ public class ResultFragment extends Fragment implements NetCatListener
                 disconnect();
             }
         } );
+        copyButton.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                copy();
+            }
+        } );
         return view;
     }
 
@@ -110,7 +135,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
-    public void netCatIsStarted() {}
+    public void netCatIsStarted()
+    {
+    }
 
     @Override
     public void netCatIsCompleted( Result result )
@@ -180,14 +207,23 @@ public class ResultFragment extends Fragment implements NetCatListener
         netCat.execute( DISCONNECT.toString() );
     }
 
+    private void copy()
+    {
+        ClipData clip = ClipData.newPlainText( "received", outputView.getText() );
+        clipboard.setPrimaryClip( clip );
+        ClipData checkClip = clipboard.getPrimaryClip();
+        Toast.makeText( getActivity(), checkClip.getItemAt( 0 ).getText() + " is copied to clipboard", Toast.LENGTH_LONG ).show();
+    }
+
     private void updateUIWithValidation()
     {
-        if( Utils.connected( netCat )) {
+        if( Utils.connected( netCat ) ) {
             sendButton.setEnabled( Utils.populated( inputText ) );
             disconnectButton.setEnabled( true );
         } else {
             sendButton.setEnabled( false );
             disconnectButton.setEnabled( false );
         }
+        copyButton.setEnabled( Utils.populated( outputView ) );
     }
 }

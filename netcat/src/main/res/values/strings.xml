@@ -9,5 +9,7 @@
     <string name="label_start">Start</string>
     <string name="label_send">Send</string>
     <string name="label_disconnect">Disconnect</string>
+    <string name="label_copy">Copy</string>
+    <string name="label_share">Share</string>
 
 </resources>
