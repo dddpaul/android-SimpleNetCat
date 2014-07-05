@@ -12,36 +12,24 @@ import java.net.Socket;
 
 @Config( emulateSdk = 18 )
 @RunWith( RobolectricTestRunner.class )
-public class NetCatListenTest extends NetCatTester
+public class NetCatConnectTest extends NetCatTester
 {
-    final static String PORT = "9998";
+    final static String PORT = "9999";
 
     /**
      * Require nc binary (netcat-openbsd package for Debian/Ubuntu).
-     * nc is used to CONNECT to our NetCat.
+     * nc is used to LISTEN for connect from our NetCat.
      */
     @Before
     public void setUp() throws Exception
     {
         nc.add( "nc" );
         nc.add( "-v" );
-        nc.add( HOST );
+        nc.add( "-l" );
         nc.add( PORT );
 
-        // Connect to NetCat by external nc after some delay required for NetCat listener to start
-        new Thread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    Thread.sleep( 500 );
-                    process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
-                } catch( Exception e ) {
-                    e.printStackTrace();
-                }
-            }
-        } ).start();
+        // Start external nc listener
+        process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
 
         ShadowLog.stream = System.out;
         netCat = new NetCat( this );
@@ -50,8 +38,9 @@ public class NetCatListenTest extends NetCatTester
     @Test
     public void test() throws InterruptedException, IOException
     {
-        // Start NetCat listener
-        Socket socket = listen( PORT );
+        // Execute connect operation after some delay
+        Thread.sleep( 500 );
+        Socket socket = connect( PORT );
         netCat.setSocket( socket );
 
         testNetCatOperations();

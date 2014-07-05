@@ -3,13 +3,6 @@ package com.github.dddpaul.netcat;
 import android.util.Log;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLog;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -23,45 +16,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
-import static com.github.dddpaul.netcat.NetCater.Result;
 import static org.hamcrest.core.Is.is;
 
-@Config( emulateSdk = 18 )
-@RunWith( RobolectricTestRunner.class )
-public class NetCatTest extends Assert implements NetCatListener
+public abstract class NetCatTester extends Assert implements NetCatListener
 {
     final static String INPUT_TEST = "Input from this test";
     final static String INPUT_NC = "Input from netcat process";
     final static String HOST = "localhost";
-    final static String PORT = "9999";
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     static List<String> nc = new ArrayList<>();
 
     NetCater netCat;
-    Result result;
+    NetCater.Result result;
     CountDownLatch latch;
     Process process;
-
-    /**
-     * Require netcat-openbsd package for Debian/Ubuntu
-     */
-    @BeforeClass
-    public static void init()
-    {
-        nc.add( "nc" );
-        nc.add( "-v" );
-        nc.add( "-l" );
-        nc.add( PORT );
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
-        ShadowLog.stream = System.out;
-        netCat = new NetCat( this );
-    }
 
     @Override
     public void netCatIsStarted()
@@ -70,27 +39,57 @@ public class NetCatTest extends Assert implements NetCatListener
     }
 
     @Override
-    public void netCatIsCompleted( Result result )
+    public void netCatIsCompleted( NetCater.Result result )
     {
         this.result = result;
         latch.countDown();
     }
 
     @Override
-    public void netCatIsFailed( Result result )
+    public void netCatIsFailed( NetCater.Result result )
     {
         this.result = result;
         Log.e( CLASS_NAME, result.getErrorMessage() );
         latch.countDown();
     }
 
-    @Test
-    public void test() throws InterruptedException, IOException
+    public Socket connect( String port ) throws InterruptedException
     {
-        Socket socket = connect();
-        netCat.setSocket( socket );
+        netCat.execute( CONNECT.toString(), HOST, port );
+        latch.await( 5, TimeUnit.SECONDS );
 
-        // Send string to nc process
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertThat( result.op, is( CONNECT ));
+        assertNotNull( result.getSocket() );
+        return result.getSocket();
+    }
+
+    public Socket listen( String port ) throws InterruptedException
+    {
+        netCat.execute( LISTEN.toString(), port );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertThat( result.op, is( LISTEN ));
+        assertNotNull( result.getSocket() );
+        return result.getSocket();
+    }
+
+    public void disconnect() throws InterruptedException
+    {
+        netCat.execute( DISCONNECT.toString() );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertThat( result.op, is( DISCONNECT ));
+    }
+
+    public void testNetCatOperations() throws InterruptedException, IOException
+    {
+        // Send string to external nc process
         netCat.setInput( new ByteArrayInputStream( INPUT_TEST.getBytes() ));
         netCat.execute( SEND.toString() );
         latch.await( 5, TimeUnit.SECONDS );
@@ -98,16 +97,15 @@ public class NetCatTest extends Assert implements NetCatListener
         assertNotNull( result );
         assertEquals( SEND, result.op );
 
-        // Get received string by nc process
+        // Get received string by external nc process
         BufferedReader b = new BufferedReader( new InputStreamReader( process.getInputStream() ));
         String line;
         do {
             line = b.readLine();
             Log.i( CLASS_NAME, line  );
-
         } while( !INPUT_TEST.equals( line ));
 
-        // Send string from nc process
+        // Send string from external nc process
         process.getOutputStream().write( INPUT_NC.getBytes() );
         process.getOutputStream().flush();
         new Thread( new Runnable()
@@ -124,7 +122,7 @@ public class NetCatTest extends Assert implements NetCatListener
             }
         }).start();
 
-        // Prepare to receive string from nc process
+        // Receive string from external nc process
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         netCat.setOutput( output );
         netCat.execute( RECEIVE.toString() );
@@ -137,27 +135,5 @@ public class NetCatTest extends Assert implements NetCatListener
         assertThat( line, is( INPUT_NC ));
 
         disconnect();
-    }
-
-    public Socket connect() throws InterruptedException
-    {
-        netCat.execute( CONNECT.toString(), HOST, PORT );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( CONNECT ));
-        assertNotNull( result.getSocket() );
-        return result.getSocket();
-    }
-
-    public void disconnect() throws InterruptedException
-    {
-        netCat.execute( DISCONNECT.toString() );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( DISCONNECT ));
     }
 }
