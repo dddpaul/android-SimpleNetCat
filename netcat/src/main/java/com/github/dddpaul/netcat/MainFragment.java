@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -30,6 +32,9 @@ public class MainFragment extends Fragment
 
     @InjectView( R.id.b_listen)
     protected Button listenButton;
+
+    @InjectView( R.id.tv_status)
+    protected TextView statusView;
 
     public static MainFragment newInstance()
     {
@@ -54,7 +59,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), CONNECT, connectToText.getText().toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), MainFragment.this, CONNECT, connectToText.getText().toString() );
             }
         } );
         listenOnText.addTextChangedListener( watcher );
@@ -63,7 +68,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), LISTEN, listenOnText.getText().toString() );
+                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), MainFragment.this, LISTEN, listenOnText.getText().toString() );
             }
         } );
         return view;
@@ -97,6 +102,6 @@ public class MainFragment extends Fragment
     private void updateUIWithValidation()
     {
         connectButton.setEnabled( Utils.populated( connectToText ));
-        listenButton.setEnabled( Utils.populated( listenOnText ));
+        listenButton.setEnabled( Utils.populated( listenOnText ) );
     }
 }

@@ -187,24 +187,24 @@ public class ResultFragment extends Fragment implements NetCatListener
         Toast.makeText( getActivity(), result.getErrorMessage(), Toast.LENGTH_LONG ).show();
     }
 
-    public void connect( String connectTo )
+    public void connect( String connectTo, TextView statusView )
     {
         if( !connectTo.matches( "[\\w\\.]+:\\d+" )) {
             Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat = new NetCat( this );
+        netCat = new NetCat( this, statusView );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
-    public void listen( String port )
+    public void listen( String port, TextView statusView )
     {
         if( !port.matches( "\\d+" )) {
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
         }
-        netCat = new NetCat( this );
+        netCat = new NetCat( this, statusView );
         netCat.execute( LISTEN.toString(), port );
     }
 

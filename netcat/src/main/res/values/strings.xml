@@ -13,5 +13,6 @@
     <string name="label_disconnect">Disconnect</string>
     <string name="label_copy">Copy</string>
     <string name="label_share">Share</string>
+    <string name="label_status_idle">Idle</string>
 
 </resources>

@@ -1,12 +1,14 @@
 package com.github.dddpaul.netcat;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, OnFragmentInteractionListener
 {
@@ -87,16 +89,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction( int position, NetCat.Op op, String data )
+    public void onFragmentInteraction( int position, Fragment caller, NetCat.Op op, String data )
     {
         if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
-            ResultFragment fragment = (ResultFragment) adapter.getRegisteredFragment( position );
+            ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );
+            TextView statusView = null;
+            if( caller instanceof MainFragment ) {
+                statusView = (TextView) caller.getView().findViewById( R.id.tv_status );
+            }
             switch( op ) {
                 case CONNECT:
-                    fragment.connect( data );
+                    result.connect( data, statusView );
                     break;
                 case LISTEN:
-                    fragment.listen( data );
+                    result.listen( data, statusView );
                     break;
             }
         }

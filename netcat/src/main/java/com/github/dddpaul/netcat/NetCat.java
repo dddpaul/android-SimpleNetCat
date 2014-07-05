@@ -2,6 +2,7 @@ package com.github.dddpaul.netcat;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -16,10 +17,17 @@ public class NetCat implements NetCater
     private Socket socket;
     private InputStream input;
     private OutputStream output;
+    private TextView progress;
 
     public NetCat( NetCatListener listener )
     {
+        this( listener, null );
+    }
+
+    public NetCat( NetCatListener listener, TextView progress )
+    {
         this.listener = listener;
+        this.progress = progress;
     }
 
     @Override
@@ -58,7 +66,7 @@ public class NetCat implements NetCater
         return socket != null && socket.isConnected();
     }
 
-    public class NetCatTask extends AsyncTask<String, Void, Result>
+    public class NetCatTask extends AsyncTask<String, String, Result>
     {
         @Override
         protected void onPreExecute()
@@ -82,13 +90,16 @@ public class NetCat implements NetCater
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
                         newSocket = new Socket();
                         newSocket.connect( new InetSocketAddress( host, port ), 3000 );
+                        publishProgress( "Connected" );
                         result.object = newSocket;
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
                         Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
                         ServerSocket serverSocket = new ServerSocket( port );
+                        publishProgress( "Listening" );
                         newSocket = serverSocket.accept();
+                        publishProgress( "Connected" );
                         result.object = newSocket;
                         break;
                     case RECEIVE:
@@ -118,6 +129,12 @@ public class NetCat implements NetCater
                 result.exception = e;
             }
             return result;
+        }
+
+        @Override
+        protected void onProgressUpdate( String... values )
+        {
+            progress.setText( values[0] );
         }
 
         @Override
