@@ -1,8 +1,8 @@
 package com.github.dddpaul.netcat;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +16,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     SectionsPagerAdapter adapter;
     ViewPager pager;
+    TextView statusView;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -52,8 +53,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        getMenuInflater().inflate( R.menu.main, menu );
-        return true;
+        getMenuInflater().inflate( R.menu.actions, menu );
+        MenuItem statusItem = menu.findItem( R.id.action_status );
+        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
+        return super.onCreateOptionsMenu( menu );
     }
 
     @Override
@@ -89,14 +92,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction( int position, Fragment caller, NetCat.Op op, String data )
+    public void onFragmentInteraction( int position, NetCat.Op op, String data )
     {
         if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
             ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );
-            TextView statusView = null;
-            if( caller instanceof MainFragment ) {
-                statusView = (TextView) caller.getView().findViewById( R.id.tv_status );
-            }
             switch( op ) {
                 case CONNECT:
                     result.connect( data, statusView );
