@@ -96,7 +96,7 @@ public class MainFragment extends Fragment
 
     private void updateUIWithValidation()
     {
-        boolean populated = Utils.populated( connectToText );
-        connectButton.setEnabled( populated );
+        connectButton.setEnabled( Utils.populated( connectToText ));
+        listenButton.setEnabled( Utils.populated( listenOnText ));
     }
 }
