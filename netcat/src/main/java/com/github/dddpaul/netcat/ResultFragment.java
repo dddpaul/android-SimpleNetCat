@@ -189,7 +189,10 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void connect( String connectTo )
     {
-        // TODO: Make some validation
+        if( !connectTo.matches( "[\\w\\.]+:\\d+" )) {
+            Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
+            return;
+        }
         String[] tokens = connectTo.split( ":" );
         netCat = new NetCat( this );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
@@ -197,7 +200,10 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void listen( String port )
     {
-        // TODO: Make some validation
+        if( !port.matches( "\\d+" )) {
+            Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
+            return;
+        }
         netCat = new NetCat( this );
         netCat.execute( LISTEN.toString(), port );
     }
