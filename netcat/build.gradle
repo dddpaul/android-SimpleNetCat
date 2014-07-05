@@ -36,11 +36,11 @@ android {
         }
     }
 
-/*
-    packagingOptions {
-        exclude 'LICENSE.txt'
+    sourceSets {
+        androidTest {
+            setRoot('src/test')
+        }
     }
-*/
 }
 
 dependencies {
