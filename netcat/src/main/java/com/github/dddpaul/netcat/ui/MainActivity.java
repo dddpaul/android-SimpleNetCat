@@ -24,11 +24,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private ViewPager pager;
     private TextView statusView;
 
-    public TextView getStatusView()
-    {
-        return statusView;
-    }
-
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
@@ -110,11 +105,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onEvent( ActivityEvent event )
     {
-        if( event.isDisconnectButtonVisible != null ) {
-            setDisconnectButtonVisibility( event.isDisconnectButtonVisible );
-        }
-        if( event.position != null ) {
-            pager.setCurrentItem( event.position, false );
+        switch( event.netCatState ) {
+            case CONNECTED:
+            case LISTENING:
+                statusView.setText( event.netCatState.toString() );
+                setDisconnectButtonVisibility( true );
+                pager.setCurrentItem( getResources().getInteger( R.integer.result_fragment_position ), false );
+                break;
+            case IDLE:
+                statusView.setText( "" );
+                setDisconnectButtonVisibility( false );
+                break;
+
         }
     }
 

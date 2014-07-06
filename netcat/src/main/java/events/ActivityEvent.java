@@ -1,23 +1,13 @@
 package events;
 
+import com.github.dddpaul.netcat.NetCater;
+
 public class ActivityEvent
 {
-    public Integer position;
-    public Boolean isDisconnectButtonVisible;
+    public NetCater.State netCatState;
 
-    public ActivityEvent( Integer position, Boolean isDisconnectButtonVisible )
+    public ActivityEvent( NetCater.State state )
     {
-        this.position = position;
-        this.isDisconnectButtonVisible = isDisconnectButtonVisible;
-    }
-
-    public ActivityEvent( int position )
-    {
-        this( position, null );
-    }
-
-    public ActivityEvent( Boolean isDisconnectButtonVisible )
-    {
-        this( null, isDisconnectButtonVisible );
+        this.netCatState = state;
     }
 }

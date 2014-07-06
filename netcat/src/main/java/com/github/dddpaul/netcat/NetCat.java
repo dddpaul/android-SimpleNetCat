@@ -2,12 +2,16 @@ package com.github.dddpaul.netcat;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.TextView;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import de.greenrobot.event.EventBus;
+import events.ActivityEvent;
+
+import static com.github.dddpaul.netcat.NetCater.State.*;
 
 public class NetCat implements NetCater
 {
@@ -17,17 +21,10 @@ public class NetCat implements NetCater
     private Socket socket;
     private InputStream input;
     private OutputStream output;
-    private TextView progress;
 
     public NetCat( NetCatListener listener )
     {
-        this( listener, null );
-    }
-
-    public NetCat( NetCatListener listener, TextView progress )
-    {
         this.listener = listener;
-        this.progress = progress;
     }
 
     @Override
@@ -49,13 +46,13 @@ public class NetCat implements NetCater
     }
 
     @Override
-    public void execute( String ... params )
+    public void execute( String... params )
     {
         new NetCatTask().execute( params );
     }
 
     @Override
-    public void executeParallel( String ... params )
+    public void executeParallel( String... params )
     {
         new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
@@ -80,7 +77,7 @@ public class NetCat implements NetCater
             Op op = Op.valueOf( params[0] );
             Result result = new Result( op );
             try {
-                Log.d( CLASS_NAME, String.format( "Executing %s operation", op ));
+                Log.d( CLASS_NAME, String.format( "Executing %s operation", op ) );
                 int port;
                 Socket newSocket;
                 switch( op ) {
@@ -90,16 +87,16 @@ public class NetCat implements NetCater
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
                         newSocket = new Socket();
                         newSocket.connect( new InetSocketAddress( host, port ), 3000 );
-                        publishProgress( "Connected" );
+                        publishProgress( CONNECTED.toString() );
                         result.object = newSocket;
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
                         Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
                         ServerSocket serverSocket = new ServerSocket( port );
-                        publishProgress( "Listening" );
+                        publishProgress( LISTENING.toString() );
                         newSocket = serverSocket.accept();
-                        publishProgress( "Connected" );
+                        publishProgress( CONNECTED.toString() );
                         result.object = newSocket;
                         break;
                     case RECEIVE:
@@ -123,7 +120,7 @@ public class NetCat implements NetCater
                             socket.shutdownOutput();
                             socket.close();
                             setSocket( null );
-                            publishProgress( "" );
+                            publishProgress( IDLE.toString() );
                         }
                 }
             } catch( Exception e ) {
@@ -135,14 +132,15 @@ public class NetCat implements NetCater
         @Override
         protected void onProgressUpdate( String... values )
         {
-            progress.setText( values[0] );
+            State state = State.valueOf( String.valueOf( values[0] ) );
+            EventBus.getDefault().post( new ActivityEvent( state ) );
         }
 
         @Override
         protected void onPostExecute( Result result )
         {
             if( result.exception == null ) {
-                Log.d( CLASS_NAME, String.format( "%s operation is completed", result.op ));
+                Log.d( CLASS_NAME, String.format( "%s operation is completed", result.op ) );
                 listener.netCatIsCompleted( result );
             } else {
                 Log.e( CLASS_NAME, result.getErrorMessage() );

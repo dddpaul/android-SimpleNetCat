@@ -9,6 +9,7 @@ import static com.github.dddpaul.netcat.Utils.isNotEmpty;
 public interface NetCater
 {
     enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
+    enum State { IDLE, CONNECTED, LISTENING }
 
     public void execute( String ... params );
     public void executeParallel( String ... params );

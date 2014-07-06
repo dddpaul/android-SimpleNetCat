@@ -36,6 +36,7 @@ import java.net.Socket;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
+import static com.github.dddpaul.netcat.NetCater.State.*;
 
 public class ResultFragment extends Fragment implements NetCatListener
 {
@@ -147,7 +148,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 netCat.setSocket( socket );
                 netCat.setOutput( output );
                 netCat.executeParallel( RECEIVE.toString() );
-                EventBus.getDefault().post( new ActivityEvent( getResources().getInteger( R.integer.result_fragment_position ), true ) );
+                EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
                 break;
             case RECEIVE:
                 // OutputStream to TextView in ResultFragment
@@ -173,7 +174,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
-                EventBus.getDefault().post( new ActivityEvent( false ));
+                EventBus.getDefault().post( new ActivityEvent( IDLE ) );
                 break;
         }
         updateUIWithValidation();
@@ -207,7 +208,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat = new NetCat( this, getStatusView() );
+        netCat = new NetCat( this );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
@@ -217,7 +218,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
         }
-        netCat = new NetCat( this, getStatusView() );
+        netCat = new NetCat( this );
         netCat.execute( LISTEN.toString(), port );
     }
 
@@ -252,10 +253,5 @@ public class ResultFragment extends Fragment implements NetCatListener
             disconnectButton.setEnabled( false );
         }
         copyButton.setEnabled( Utils.populated( outputView ) );
-    }
-
-    private TextView getStatusView()
-    {
-        return ( (MainActivity) getActivity() ).getStatusView();
     }
 }
