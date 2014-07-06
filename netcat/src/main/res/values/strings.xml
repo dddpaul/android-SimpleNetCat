@@ -15,5 +15,6 @@
     <string name="label_copy">Copy</string>
     <string name="label_share">Share</string>
     <string name="label_status_idle">Idle</string>
+    <string name="action_cancel">Cancel</string>
 
 </resources>

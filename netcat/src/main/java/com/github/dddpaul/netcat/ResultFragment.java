@@ -37,6 +37,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     private ByteArrayOutputStream output;
     private NetCater netCat;
     private ClipboardManager clipboard;
+    private MainActivity activity;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -120,6 +121,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onAttach( Activity activity )
     {
         super.onAttach( activity );
+        this.activity = (MainActivity) activity;
         try {
             callback = (OnFragmentInteractionListener) activity;
         } catch( ClassCastException e ) {
@@ -176,6 +178,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
+                activity.setDisconnectButtonVisibility( false );
                 break;
         }
         updateUIWithValidation();
@@ -206,6 +209,11 @@ public class ResultFragment extends Fragment implements NetCatListener
         }
         netCat = new NetCat( this, statusView );
         netCat.execute( LISTEN.toString(), port );
+    }
+
+    public void disconnect( TextView statusView )
+    {
+        netCat.execute( DISCONNECT.toString() );
     }
 
     private void send()

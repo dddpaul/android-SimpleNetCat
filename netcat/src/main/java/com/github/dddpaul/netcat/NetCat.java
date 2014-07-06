@@ -123,6 +123,7 @@ public class NetCat implements NetCater
                             socket.shutdownOutput();
                             socket.close();
                             setSocket( null );
+                            publishProgress( "" );
                         }
                 }
             } catch( Exception e ) {

@@ -2,7 +2,6 @@ package com.github.dddpaul.netcat;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -14,9 +13,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    SectionsPagerAdapter adapter;
-    ViewPager pager;
-    TextView statusView;
+    private SectionsPagerAdapter adapter;
+    private Menu menu;
+    private ViewPager pager;
+    private TextView statusView;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -46,7 +46,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             actionBar.addTab(
                     actionBar.newTab()
                             .setText( adapter.getPageTitle( i ) )
-                            .setTabListener( this ) );
+                            .setTabListener( this )
+            );
         }
     }
 
@@ -54,17 +55,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public boolean onCreateOptionsMenu( Menu menu )
     {
         getMenuInflater().inflate( R.menu.actions, menu );
-        MenuItem statusItem = menu.findItem( R.id.action_status );
-        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
+        statusView = (TextView) menu.findItem( R.id.action_status ).getActionView();
+        this.menu = menu;
         return super.onCreateOptionsMenu( menu );
     }
 
     @Override
     public boolean onOptionsItemSelected( MenuItem item )
     {
-        int id = item.getItemId();
-        if( id == R.id.action_settings ) {
-            return true;
+        switch( item.getItemId() ) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_cancel:
+                int position = getResources().getInteger( R.integer.result_fragment_position );
+                ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );
+                result.disconnect( statusView );
         }
         return super.onOptionsItemSelected( item );
     }
@@ -88,6 +93,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onFragmentInteraction( int position )
     {
+        setDisconnectButtonVisibility( true );
         pager.setCurrentItem( position, false );
     }
 
@@ -105,5 +111,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     break;
             }
         }
+    }
+
+    public void setDisconnectButtonVisibility( boolean visible )
+    {
+        menu.findItem( R.id.action_cancel ).setVisible( visible );
+        onPrepareOptionsMenu( menu );
     }
 }

@@ -4,4 +4,9 @@
           android:title="@string/action_status"
           app:showAsAction="always"
           app:actionViewClass="android.widget.TextView"/>
+    <item android:id="@+id/action_cancel"
+          android:title="@string/action_cancel"
+          android:icon="@drawable/ic_action_cancel"
+          android:visible="false"
+          app:showAsAction="always"/>
 </menu>
