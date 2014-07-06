@@ -1,6 +1,5 @@
 package com.github.dddpaul.netcat.ui;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -25,6 +24,9 @@ import com.github.dddpaul.netcat.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
+import events.ActivityEvent;
+import events.FragmentEvent;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,11 +41,9 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    private OnFragmentInteractionListener callback;
     private ByteArrayOutputStream output;
     private NetCater netCat;
     private ClipboardManager clipboard;
-    private MainActivity activity;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -74,6 +74,14 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onCreate( savedInstanceState );
         clipboard = (ClipboardManager) getActivity().getSystemService( Context.CLIPBOARD_SERVICE );
+        EventBus.getDefault().register( this );
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        EventBus.getDefault().unregister( this );
+        super.onDestroy();
     }
 
     @Override
@@ -124,25 +132,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
-    public void onAttach( Activity activity )
-    {
-        super.onAttach( activity );
-        this.activity = (MainActivity) activity;
-        try {
-            callback = (OnFragmentInteractionListener) activity;
-        } catch( ClassCastException e ) {
-            throw new ClassCastException( activity.toString() + " must implement OnFragmentInteractionListener" );
-        }
-    }
-
-    @Override
-    public void onDetach()
-    {
-        super.onDetach();
-        callback = null;
-    }
-
-    @Override
     public void netCatIsStarted()
     {
     }
@@ -158,7 +147,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 netCat.setSocket( socket );
                 netCat.setOutput( output );
                 netCat.executeParallel( RECEIVE.toString() );
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ) );
+                EventBus.getDefault().post( new ActivityEvent( getResources().getInteger( R.integer.result_fragment_position ), true ) );
                 break;
             case RECEIVE:
                 // OutputStream to TextView in ResultFragment
@@ -184,7 +173,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
-                activity.setDisconnectButtonVisibility( false );
+                EventBus.getDefault().post( new ActivityEvent( false ));
                 break;
         }
         updateUIWithValidation();
@@ -196,30 +185,40 @@ public class ResultFragment extends Fragment implements NetCatListener
         Toast.makeText( getActivity(), result.getErrorMessage(), Toast.LENGTH_LONG ).show();
     }
 
-    public void connect( String connectTo, TextView statusView )
+    public void onEvent( FragmentEvent event )
+    {
+        switch( event.op ) {
+            case CONNECT:
+                connect( event.data );
+                break;
+            case LISTEN:
+                listen( event.data );
+                break;
+            case DISCONNECT:
+                disconnect();
+                break;
+        }
+    }
+
+    public void connect( String connectTo )
     {
         if( !connectTo.matches( "[\\w\\.]+:\\d+" ) ) {
             Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat = new NetCat( this, statusView );
+        netCat = new NetCat( this, getStatusView() );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
-    public void listen( String port, TextView statusView )
+    public void listen( String port )
     {
         if( !port.matches( "\\d+" ) ) {
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
         }
-        netCat = new NetCat( this, statusView );
+        netCat = new NetCat( this, getStatusView() );
         netCat.execute( LISTEN.toString(), port );
-    }
-
-    public void disconnect( TextView statusView )
-    {
-        netCat.execute( DISCONNECT.toString() );
     }
 
     private void send()
@@ -253,5 +252,10 @@ public class ResultFragment extends Fragment implements NetCatListener
             disconnectButton.setEnabled( false );
         }
         copyButton.setEnabled( Utils.populated( outputView ) );
+    }
+
+    private TextView getStatusView()
+    {
+        return ( (MainActivity) getActivity() ).getStatusView();
     }
 }

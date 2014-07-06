@@ -12,14 +12,22 @@ import android.widget.TextView;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, OnFragmentInteractionListener
+import de.greenrobot.event.EventBus;
+import events.ActivityEvent;
+import events.FragmentEvent;
+
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    private SectionsPagerAdapter adapter;
     private Menu menu;
     private ViewPager pager;
     private TextView statusView;
+
+    public TextView getStatusView()
+    {
+        return statusView;
+    }
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -32,7 +40,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
 
         // Set up the ViewPager with the sections adapter
-        adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
         pager = (ViewPager) findViewById( R.id.pager );
         pager.setAdapter( adapter );
         pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
@@ -52,6 +60,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener( this )
             );
         }
+
+        EventBus.getDefault().register( this );
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        EventBus.getDefault().unregister( this );
+        super.onDestroy();
     }
 
     @Override
@@ -70,9 +87,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case R.id.action_settings:
                 return true;
             case R.id.action_cancel:
-                int position = getResources().getInteger( R.integer.result_fragment_position );
-                ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );
-                result.disconnect( statusView );
+                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.DISCONNECT ) );
         }
         return super.onOptionsItemSelected( item );
     }
@@ -93,26 +108,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
     }
 
-    @Override
-    public void onFragmentInteraction( int position )
+    public void onEvent( ActivityEvent event )
     {
-        setDisconnectButtonVisibility( true );
-        pager.setCurrentItem( position, false );
-    }
-
-    @Override
-    public void onFragmentInteraction( int position, NetCater.Op op, String data )
-    {
-        if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
-            ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );
-            switch( op ) {
-                case CONNECT:
-                    result.connect( data, statusView );
-                    break;
-                case LISTEN:
-                    result.listen( data, statusView );
-                    break;
-            }
+        if( event.isDisconnectButtonVisible != null ) {
+            setDisconnectButtonVisibility( event.isDisconnectButtonVisible );
+        }
+        if( event.position != null ) {
+            pager.setCurrentItem( event.position, false );
         }
     }
 

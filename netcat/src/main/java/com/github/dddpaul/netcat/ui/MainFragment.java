@@ -1,6 +1,5 @@
 package com.github.dddpaul.netcat.ui;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -16,13 +15,13 @@ import com.github.dddpaul.netcat.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
+import events.FragmentEvent;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 
 public class MainFragment extends Fragment
 {
-    private OnFragmentInteractionListener callback;
-
     @InjectView( R.id.et_connect_to )
     protected EditText connectToText;
 
@@ -38,6 +37,12 @@ public class MainFragment extends Fragment
     public static MainFragment newInstance()
     {
         return new MainFragment();
+    }
+
+    @Override
+    public void onCreate( Bundle savedInstanceState )
+    {
+        super.onCreate( savedInstanceState );
     }
 
     @Override
@@ -58,7 +63,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), CONNECT, connectToText.getText().toString() );
+                EventBus.getDefault().post( new FragmentEvent( CONNECT, connectToText.getText().toString() ) );
             }
         } );
         listenOnText.addTextChangedListener( watcher );
@@ -67,7 +72,7 @@ public class MainFragment extends Fragment
             @Override
             public void onClick( View v )
             {
-                callback.onFragmentInteraction( getResources().getInteger( R.integer.result_fragment_position ), LISTEN, listenOnText.getText().toString() );
+                EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOnText.getText().toString() ) );
             }
         } );
         return view;
@@ -78,24 +83,6 @@ public class MainFragment extends Fragment
     {
         super.onResume();
         updateUIWithValidation();
-    }
-
-    @Override
-    public void onAttach( Activity activity )
-    {
-        super.onAttach( activity );
-        try {
-            callback = (OnFragmentInteractionListener) activity;
-        } catch( ClassCastException e ) {
-            throw new ClassCastException( activity.toString() + " must implement OnFragmentInteractionListener" );
-        }
-    }
-
-    @Override
-    public void onDetach()
-    {
-        super.onDetach();
-        callback = null;
     }
 
     private void updateUIWithValidation()
