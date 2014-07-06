@@ -1,6 +1,6 @@
 
 
-package com.github.dddpaul.netcat;
+package com.github.dddpaul.netcat.ui;
 
 import android.text.Editable;
 import android.text.TextWatcher;

@@ -1,4 +1,4 @@
-package com.github.dddpaul.netcat;
+package com.github.dddpaul.netcat.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -8,6 +8,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.github.dddpaul.netcat.NetCater;
+import com.github.dddpaul.netcat.R;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, OnFragmentInteractionListener
 {
@@ -98,7 +101,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction( int position, NetCat.Op op, String data )
+    public void onFragmentInteraction( int position, NetCater.Op op, String data )
     {
         if( position == getResources().getInteger( R.integer.result_fragment_position ) ) {
             ResultFragment result = (ResultFragment) adapter.getRegisteredFragment( position );

@@ -1,4 +1,4 @@
-package com.github.dddpaul.netcat;
+package com.github.dddpaul.netcat.ui;
 
 import android.app.Activity;
 import android.content.ClipData;
@@ -16,6 +16,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.dddpaul.netcat.NetCat;
+import com.github.dddpaul.netcat.NetCatListener;
+import com.github.dddpaul.netcat.NetCater;
+import com.github.dddpaul.netcat.R;
+import com.github.dddpaul.netcat.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -42,10 +48,10 @@ public class ResultFragment extends Fragment implements NetCatListener
     @InjectView( R.id.et_input )
     protected EditText inputText;
 
-    @InjectView(R.id.tv_output)
+    @InjectView( R.id.tv_output )
     protected TextView outputView;
 
-    @InjectView(R.id.b_send)
+    @InjectView( R.id.b_send )
     protected Button sendButton;
 
     @InjectView( R.id.b_disconnect )
@@ -192,7 +198,7 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void connect( String connectTo, TextView statusView )
     {
-        if( !connectTo.matches( "[\\w\\.]+:\\d+" )) {
+        if( !connectTo.matches( "[\\w\\.]+:\\d+" ) ) {
             Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
             return;
         }
@@ -203,7 +209,7 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void listen( String port, TextView statusView )
     {
-        if( !port.matches( "\\d+" )) {
+        if( !port.matches( "\\d+" ) ) {
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
         }

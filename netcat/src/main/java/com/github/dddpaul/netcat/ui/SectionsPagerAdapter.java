@@ -1,10 +1,15 @@
-package com.github.dddpaul.netcat;
+package com.github.dddpaul.netcat.ui;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
+
+import com.github.dddpaul.netcat.R;
+import com.github.dddpaul.netcat.ui.MainActivity;
+import com.github.dddpaul.netcat.ui.MainFragment;
+import com.github.dddpaul.netcat.ui.ResultFragment;
 
 import java.util.Locale;
 

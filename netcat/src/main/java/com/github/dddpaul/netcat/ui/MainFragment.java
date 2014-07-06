@@ -1,4 +1,4 @@
-package com.github.dddpaul.netcat;
+package com.github.dddpaul.netcat.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.github.dddpaul.netcat.R;
+import com.github.dddpaul.netcat.Utils;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -20,16 +23,16 @@ public class MainFragment extends Fragment
 {
     private OnFragmentInteractionListener callback;
 
-    @InjectView( R.id.et_connect_to)
+    @InjectView( R.id.et_connect_to )
     protected EditText connectToText;
 
-    @InjectView( R.id.b_connect)
+    @InjectView( R.id.b_connect )
     protected Button connectButton;
 
-    @InjectView( R.id.et_listen_on)
+    @InjectView( R.id.et_listen_on )
     protected EditText listenOnText;
 
-    @InjectView( R.id.b_listen)
+    @InjectView( R.id.b_listen )
     protected Button listenButton;
 
     public static MainFragment newInstance()
@@ -97,7 +100,7 @@ public class MainFragment extends Fragment
 
     private void updateUIWithValidation()
     {
-        connectButton.setEnabled( Utils.populated( connectToText ));
+        connectButton.setEnabled( Utils.populated( connectToText ) );
         listenButton.setEnabled( Utils.populated( listenOnText ) );
     }
 }
