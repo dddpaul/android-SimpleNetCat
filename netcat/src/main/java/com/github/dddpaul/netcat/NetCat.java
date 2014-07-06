@@ -172,27 +172,5 @@ public class NetCat implements NetCater
                 writer.flush();
             }
         }
-
-/*
-        private void transferStreams( Socket socket ) throws IOException, InterruptedException
-        {
-            InputStream input1 = System.in;
-            OutputStream output1 = socket.getOutputStream();
-            InputStream input2 = socket.getInputStream();
-            PrintStream output2 = new PrintStream( output );
-
-            Thread thread1 = new Thread( new StreamTransferer( input1, output1 ) );
-            thread1.setName( "Thread1: Local-Remote" );
-
-            Thread thread2 = new Thread( new StreamTransferer( input2, output2 ) );
-            thread2.setName( "Thread2: Remote-Local" );
-
-            thread1.start();
-            thread2.start();
-
-            // Wait till other side is terminated
-            thread2.join();
-        }
-*/
     }
 }
