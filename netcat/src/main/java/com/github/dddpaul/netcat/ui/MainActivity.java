@@ -1,10 +1,13 @@
 package com.github.dddpaul.netcat.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Menu menu;
     private ViewPager pager;
     private TextView statusView;
+    private ShareActionProvider shareProvider;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -70,8 +74,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public boolean onCreateOptionsMenu( Menu menu )
     {
         getMenuInflater().inflate( R.menu.actions, menu );
-        statusView = (TextView) menu.findItem( R.id.action_status ).getActionView();
         this.menu = menu;
+        MenuItem statusItem = menu.findItem( R.id.action_status );
+        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
+        MenuItem shareItem = menu.findItem( R.id.action_share );
+        shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider( shareItem );
+        shareProvider.setShareIntent( getShareIntent() );
         return super.onCreateOptionsMenu( menu );
     }
 
@@ -83,6 +91,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return true;
             case R.id.action_cancel:
                 EventBus.getDefault().post( new FragmentEvent( NetCater.Op.DISCONNECT ) );
+                break;
         }
         return super.onOptionsItemSelected( item );
     }
@@ -124,5 +133,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         menu.findItem( R.id.action_cancel ).setVisible( visible );
         onPrepareOptionsMenu( menu );
+    }
+
+    private Intent getShareIntent()
+    {
+        Intent intent = new Intent();
+        intent.setAction( Intent.ACTION_SEND );
+        intent.putExtra( Intent.EXTRA_TEXT, "This is my text to send." );
+        intent.setType( "text/plain" );
+        return Intent.createChooser( intent, "Title" );
     }
 }
