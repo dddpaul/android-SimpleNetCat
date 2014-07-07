@@ -196,7 +196,11 @@ public class ResultFragment extends Fragment implements NetCatListener
                 listen( event.data );
                 break;
             case DISCONNECT:
-                disconnect();
+                if( netCat.isConnected() ) {
+                    disconnect();
+                } else {
+                    netCat.cancel();
+                }
                 break;
         }
     }

@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
@@ -17,6 +19,7 @@ public class NetCat implements NetCater
 {
     private final String CLASS_NAME = getClass().getSimpleName();
 
+    private NetCatTask task;
     private NetCatListener listener;
     private Socket socket;
     private InputStream input;
@@ -46,15 +49,25 @@ public class NetCat implements NetCater
     }
 
     @Override
+    public void cancel()
+    {
+        if( task != null ) {
+            task.cancel( false );
+        }
+    }
+
+    @Override
     public void execute( String... params )
     {
-        new NetCatTask().execute( params );
+        task = new NetCatTask();
+        task.execute( params );
     }
 
     @Override
     public void executeParallel( String... params )
     {
-        new NetCatTask().executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
+        task = new NetCatTask();
+        task.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
 
     @Override
@@ -92,12 +105,25 @@ public class NetCat implements NetCater
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
+                        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+                        serverChannel.configureBlocking( false );
+                        serverChannel.socket().bind( new InetSocketAddress( port ) );
                         Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
-                        ServerSocket serverSocket = new ServerSocket( port );
                         publishProgress( LISTENING.toString() );
-                        newSocket = serverSocket.accept();
-                        publishProgress( CONNECTED.toString() );
-                        result.object = newSocket;
+                        while( !task.isCancelled() ) {
+                            SocketChannel channel = serverChannel.accept();
+                            Thread.sleep( 100 );
+                            if( channel != null ) {
+                                result.object = channel.socket();
+                                publishProgress( CONNECTED.toString() );
+                                break;
+                            }
+                        }
+                        if( task.isCancelled() ) {
+                            serverChannel.close();
+                            Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
+                            result.exception = new Exception( "Listening task is cancelled" );
+                        }
                         break;
                     case RECEIVE:
                         if( socket != null && socket.isConnected() ) {
@@ -124,6 +150,7 @@ public class NetCat implements NetCater
                         }
                 }
             } catch( Exception e ) {
+                e.printStackTrace();
                 result.exception = e;
             }
             return result;
@@ -146,6 +173,13 @@ public class NetCat implements NetCater
                 Log.e( CLASS_NAME, result.getErrorMessage() );
                 listener.netCatIsFailed( result );
             }
+        }
+
+        @Override
+        protected void onCancelled( Result result )
+        {
+            EventBus.getDefault().post( new ActivityEvent( IDLE ) );
+            listener.netCatIsFailed( result );
         }
 
         private void receiveFromSocket() throws IOException

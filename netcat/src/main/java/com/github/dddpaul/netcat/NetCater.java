@@ -11,6 +11,7 @@ public interface NetCater
     enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
     enum State { IDLE, CONNECTED, LISTENING }
 
+    public void cancel();
     public void execute( String ... params );
     public void executeParallel( String ... params );
     public void setSocket( Socket socket );
