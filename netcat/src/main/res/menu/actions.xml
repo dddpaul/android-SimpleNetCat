@@ -1,12 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
-    <item android:id="@+id/action_status"
-          android:title="@string/action_status"
-          app:showAsAction="always"
-          app:actionViewClass="android.widget.TextView"/>
-    <item android:id="@+id/action_cancel"
-          android:title="@string/action_cancel"
-          android:icon="@drawable/ic_action_cancel"
-          android:visible="false"
-          app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_status"
+        android:title="@string/action_status"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView"/>
+    <item
+        android:id="@+id/action_cancel"
+        android:title="@string/action_cancel"
+        android:icon="@drawable/ic_action_cancel"
+        android:visible="false"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_share"
+        android:title="@string/label_share"
+        android:icon="@drawable/ic_action_share"
+        app:showAsAction="always"
+        android:actionProviderClass="android.widget.ShareActionProvider" />
 </menu>
