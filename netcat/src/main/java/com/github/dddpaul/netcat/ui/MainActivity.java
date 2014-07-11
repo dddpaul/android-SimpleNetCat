@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
+import com.github.dddpaul.netcat.Utils;
 
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
@@ -79,7 +80,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         statusView = (TextView) MenuItemCompat.getActionView( statusItem );
         MenuItem shareItem = menu.findItem( R.id.action_share );
         shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider( shareItem );
-        shareProvider.setShareIntent( getShareIntent() );
         return super.onCreateOptionsMenu( menu );
     }
 
@@ -124,6 +124,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             case IDLE:
                 statusView.setText( "" );
                 setDisconnectButtonVisibility( false );
+                if( Utils.isNotEmpty( event.text )) {
+                    shareProvider.setShareIntent( getShareIntent( event.text ) );
+                }
                 break;
 
         }
@@ -135,11 +138,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         onPrepareOptionsMenu( menu );
     }
 
-    private Intent getShareIntent()
+    private Intent getShareIntent( String text )
     {
         Intent intent = new Intent();
         intent.setAction( Intent.ACTION_SEND );
-        intent.putExtra( Intent.EXTRA_TEXT, "This is my text to send." );
+        intent.putExtra( Intent.EXTRA_TEXT, text );
         intent.setType( "text/plain" );
         return Intent.createChooser( intent, "Title" );
     }

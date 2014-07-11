@@ -174,7 +174,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case DISCONNECT:
                 Toast.makeText( getActivity(), "Connection is closed", Toast.LENGTH_LONG ).show();
-                EventBus.getDefault().post( new ActivityEvent( IDLE ) );
+                EventBus.getDefault().post( new ActivityEvent( IDLE, outputView.getText().toString() ) );
                 break;
         }
         updateUIWithValidation();
