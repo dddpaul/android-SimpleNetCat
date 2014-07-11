@@ -175,6 +175,9 @@ public class ResultFragment extends Fragment implements NetCatListener
                     netCat.cancel();
                 }
                 break;
+            case CLEAR_OUTPUT:
+                outputView.setText( "" );
+                break;
         }
     }
 

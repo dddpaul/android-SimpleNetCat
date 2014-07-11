@@ -16,5 +16,6 @@
     <string name="label_share">Share</string>
     <string name="label_status_idle">Idle</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_clear">Clear</string>
 
 </resources>

@@ -25,7 +25,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private Menu menu;
-    private MenuItem cancelItem, shareItem, statusItem;
+    private MenuItem cancelItem, clearItem, shareItem, statusItem;
     private ViewPager pager;
     private TextView statusView;
     private ShareActionProvider shareProvider;
@@ -78,6 +78,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         getMenuInflater().inflate( R.menu.actions, menu );
         this.menu = menu;
         cancelItem = menu.findItem( R.id.action_cancel );
+        clearItem = menu.findItem( R.id.action_clear );
         shareItem = menu.findItem( R.id.action_share );
         shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider( shareItem );
         statusItem = menu.findItem( R.id.action_status );
@@ -89,10 +90,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public boolean onOptionsItemSelected( MenuItem item )
     {
         switch( item.getItemId() ) {
-            case R.id.action_settings:
-                return true;
             case R.id.action_cancel:
                 EventBus.getDefault().post( new FragmentEvent( NetCater.Op.DISCONNECT ) );
+                break;
+            case R.id.action_clear:
+                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.CLEAR_OUTPUT ) );
                 break;
         }
         return super.onOptionsItemSelected( item );

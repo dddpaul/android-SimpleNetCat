@@ -8,7 +8,7 @@ import static com.github.dddpaul.netcat.Utils.isNotEmpty;
 
 public interface NetCater
 {
-    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT }
+    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT }
     enum State { IDLE, CONNECTED, LISTENING }
 
     public void cancel();
