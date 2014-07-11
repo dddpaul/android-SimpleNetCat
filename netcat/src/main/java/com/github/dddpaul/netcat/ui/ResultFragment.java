@@ -1,7 +1,5 @@
 package com.github.dddpaul.netcat.ui;
 
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -43,7 +41,6 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     private ByteArrayOutputStream output;
     private NetCater netCat;
-    private ClipboardManager clipboard;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -67,7 +64,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        clipboard = (ClipboardManager) getActivity().getSystemService( Context.CLIPBOARD_SERVICE );
         EventBus.getDefault().register( this );
     }
 
