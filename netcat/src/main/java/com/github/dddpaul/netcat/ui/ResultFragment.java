@@ -1,6 +1,5 @@
 package com.github.dddpaul.netcat.ui;
 
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -55,12 +54,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     @InjectView( R.id.b_send )
     protected Button sendButton;
 
-    @InjectView( R.id.b_disconnect )
-    protected Button disconnectButton;
-
-    @InjectView( R.id.b_copy )
-    protected Button copyButton;
-
     public ResultFragment()
     {
     }
@@ -104,22 +97,6 @@ public class ResultFragment extends Fragment implements NetCatListener
             public void onClick( View v )
             {
                 send();
-            }
-        } );
-        disconnectButton.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                disconnect();
-            }
-        } );
-        copyButton.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                copy();
             }
         } );
         return view;
@@ -239,23 +216,12 @@ public class ResultFragment extends Fragment implements NetCatListener
         netCat.execute( DISCONNECT.toString() );
     }
 
-    private void copy()
-    {
-        ClipData clip = ClipData.newPlainText( "received", outputView.getText() );
-        clipboard.setPrimaryClip( clip );
-        ClipData checkClip = clipboard.getPrimaryClip();
-        Toast.makeText( getActivity(), checkClip.getItemAt( 0 ).getText() + " is copied to clipboard", Toast.LENGTH_LONG ).show();
-    }
-
     private void updateUIWithValidation()
     {
         if( Utils.connected( netCat ) ) {
             sendButton.setEnabled( Utils.populated( inputText ) );
-            disconnectButton.setEnabled( true );
         } else {
             sendButton.setEnabled( false );
-            disconnectButton.setEnabled( false );
         }
-        copyButton.setEnabled( Utils.populated( outputView ) );
     }
 }
