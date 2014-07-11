@@ -25,6 +25,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private Menu menu;
+    private MenuItem cancelItem, shareItem, statusItem;
     private ViewPager pager;
     private TextView statusView;
     private ShareActionProvider shareProvider;
@@ -76,10 +77,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         getMenuInflater().inflate( R.menu.actions, menu );
         this.menu = menu;
-        MenuItem statusItem = menu.findItem( R.id.action_status );
-        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
-        MenuItem shareItem = menu.findItem( R.id.action_share );
+        cancelItem = menu.findItem( R.id.action_cancel );
+        shareItem = menu.findItem( R.id.action_share );
         shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider( shareItem );
+        statusItem = menu.findItem( R.id.action_status );
+        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
         return super.onCreateOptionsMenu( menu );
     }
 
@@ -117,24 +119,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         switch( event.netCatState ) {
             case CONNECTED:
             case LISTENING:
+                cancelItem.setVisible( true );
+                shareItem.setVisible( false );
+                statusItem.setVisible( true );
                 statusView.setText( event.netCatState.toString() );
-                setDisconnectButtonVisibility( true );
                 pager.setCurrentItem( getResources().getInteger( R.integer.result_fragment_position ), false );
                 break;
             case IDLE:
-                statusView.setText( "" );
-                setDisconnectButtonVisibility( false );
+                cancelItem.setVisible( false );
+                statusItem.setVisible( false );
                 if( Utils.isNotEmpty( event.text )) {
+                    shareItem.setVisible( true );
                     shareProvider.setShareIntent( getShareIntent( event.text ) );
                 }
                 break;
 
         }
-    }
-
-    public void setDisconnectButtonVisibility( boolean visible )
-    {
-        menu.findItem( R.id.action_cancel ).setVisible( visible );
         onPrepareOptionsMenu( menu );
     }
 

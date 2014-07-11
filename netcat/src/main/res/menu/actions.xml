@@ -3,6 +3,7 @@
     <item
         android:id="@+id/action_status"
         android:title="@string/action_status"
+        android:visible="false"
         app:showAsAction="ifRoom"
         app:actionViewClass="android.widget.TextView"/>
     <item
@@ -14,6 +15,7 @@
     <item
         android:id="@+id/action_share"
         android:title="@string/label_share"
+        android:visible="false"
         app:showAsAction="ifRoom"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
 </menu>
