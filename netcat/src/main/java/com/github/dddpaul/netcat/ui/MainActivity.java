@@ -144,6 +144,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         intent.setAction( Intent.ACTION_SEND );
         intent.putExtra( Intent.EXTRA_TEXT, text );
         intent.setType( "text/plain" );
-        return Intent.createChooser( intent, "Title" );
+        return intent;
     }
 }
