@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +26,6 @@ import events.FragmentEvent;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
@@ -124,23 +121,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
                 break;
             case RECEIVE:
-                // OutputStream to TextView in ResultFragment
-                OutputStream resultStream = new OutputStream()
-                {
-                    @Override
-                    public void write( int oneByte ) throws IOException
-                    {
-                        char ch = (char) oneByte;
-                        outputView.setText( outputView.getText() + String.valueOf( ch ) );
-                        System.out.write( oneByte );
-                    }
-                };
-
-                try {
-                    output.writeTo( resultStream );
-                } catch( IOException e ) {
-                    Log.e( CLASS_NAME, e.getMessage() );
-                }
+                outputView.setText( output.toString() );
                 break;
             case SEND:
                 inputText.setText( "" );
