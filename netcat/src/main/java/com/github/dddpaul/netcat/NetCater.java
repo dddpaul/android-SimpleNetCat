@@ -8,8 +8,8 @@ import static com.github.dddpaul.netcat.Utils.isNotEmpty;
 
 public interface NetCater
 {
-    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT }
-    enum State { IDLE, CONNECTED, LISTENING }
+    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT_VIEW }
+    enum State { IDLE, CONNECTED, LISTENING, OUTPUT_VIEW_CLEARED }
 
     public void cancel();
     public void execute( String ... params );

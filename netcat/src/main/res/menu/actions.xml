@@ -21,5 +21,6 @@
         android:id="@+id/action_clear"
         android:title="@string/action_clear"
         android:icon="@drawable/ic_action_backspace"
+        android:visible="false"
         app:showAsAction="ifRoom"/>
 </menu>

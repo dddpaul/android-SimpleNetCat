@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 EventBus.getDefault().post( new FragmentEvent( NetCater.Op.DISCONNECT ) );
                 break;
             case R.id.action_clear:
-                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.CLEAR_OUTPUT ) );
+                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.CLEAR_OUTPUT_VIEW ) );
                 break;
         }
         return super.onOptionsItemSelected( item );
@@ -131,11 +131,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 cancelItem.setVisible( false );
                 statusItem.setVisible( false );
                 if( Utils.isNotEmpty( event.text )) {
+                    clearItem.setVisible( true );
                     shareItem.setVisible( true );
                     shareProvider.setShareIntent( getShareIntent( event.text ) );
                 }
                 break;
-
+            case OUTPUT_VIEW_CLEARED:
+                clearItem.setVisible( false );
+                shareItem.setVisible( false );
+                break;
         }
         onPrepareOptionsMenu( menu );
     }
