@@ -12,13 +12,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 import events.FragmentEvent;
+
+import static com.github.dddpaul.netcat.Constants.ACTIONS_VISIBILITY_KEY;
+import static com.github.dddpaul.netcat.Constants.NETCAT_STATE_KEY;
+import static com.github.dddpaul.netcat.NetCater.*;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener
 {
@@ -27,8 +30,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Menu menu;
     private MenuItem cancelItem, clearItem, shareItem, statusItem;
     private ViewPager pager;
-    private TextView statusView;
+    private TextView stateView;
     private ShareActionProvider shareProvider;
+    private boolean[] actionsVisibility;
+    private State netCatState;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -63,6 +68,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         EventBus.getDefault().register( this );
+
+        if( savedInstanceState != null ) {
+            actionsVisibility = savedInstanceState.getBooleanArray( ACTIONS_VISIBILITY_KEY );
+            try {
+                netCatState = State.valueOf( savedInstanceState.getString( NETCAT_STATE_KEY ) );
+            } catch( IllegalArgumentException e ) {
+                netCatState = null;
+            }
+        }
     }
 
     @Override
@@ -70,6 +84,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         EventBus.getDefault().unregister( this );
         super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState( Bundle outState )
+    {
+        super.onSaveInstanceState( outState );
+        outState.putBooleanArray( ACTIONS_VISIBILITY_KEY, getActionsVisibility() );
+        outState.putString( NETCAT_STATE_KEY, stateView.getText().toString() );
     }
 
     @Override
@@ -81,8 +103,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         clearItem = menu.findItem( R.id.action_clear );
         shareItem = menu.findItem( R.id.action_share );
         shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider( shareItem );
-        statusItem = menu.findItem( R.id.action_status );
-        statusView = (TextView) MenuItemCompat.getActionView( statusItem );
+        statusItem = menu.findItem( R.id.action_state );
+        stateView = (TextView) MenuItemCompat.getActionView( statusItem );
+        if( actionsVisibility != null ) {
+            setActionsVisibility( actionsVisibility );
+        }
+        if( netCatState != null ) {
+            stateView.setText( netCatState.toString() );
+        }
         return super.onCreateOptionsMenu( menu );
     }
 
@@ -91,10 +119,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     {
         switch( item.getItemId() ) {
             case R.id.action_cancel:
-                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.DISCONNECT ) );
+                EventBus.getDefault().post( new FragmentEvent( Op.DISCONNECT ) );
                 break;
             case R.id.action_clear:
-                EventBus.getDefault().post( new FragmentEvent( NetCater.Op.CLEAR_OUTPUT_VIEW ) );
+                EventBus.getDefault().post( new FragmentEvent( Op.CLEAR_OUTPUT_VIEW ) );
                 break;
         }
         return super.onOptionsItemSelected( item );
@@ -124,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 cancelItem.setVisible( true );
                 shareItem.setVisible( false );
                 statusItem.setVisible( true );
-                statusView.setText( event.netCatState.toString() );
+                stateView.setText( event.netCatState.toString() );
                 pager.setCurrentItem( getResources().getInteger( R.integer.result_fragment_position ), false );
                 break;
             case IDLE:
@@ -151,5 +179,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         intent.putExtra( Intent.EXTRA_TEXT, text );
         intent.setType( "text/plain" );
         return intent;
+    }
+
+    private boolean[] getActionsVisibility()
+    {
+        boolean[] result = new boolean[menu.size()];
+        for( int i = 0; i < menu.size(); i++ ) {
+            result[i] = menu.getItem( i ).isVisible();
+        }
+        return result;
+    }
+
+    private void setActionsVisibility( boolean[] actionsVisibility )
+    {
+        for( int i = 0; i < menu.size(); i++ ) {
+            menu.getItem( i ).setVisible( actionsVisibility[i] );
+        }
     }
 }

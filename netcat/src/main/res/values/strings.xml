@@ -3,7 +3,7 @@
 
     <string name="app_name">Simple NetCat</string>
     <string name="action_settings">Settings</string>
-    <string name="action_status">Status</string>
+    <string name="action_state">Status</string>
     <string name="title_section1">Main</string>
     <string name="title_section2">Result</string>
     <string name="label_connect_to">Connect to</string>
