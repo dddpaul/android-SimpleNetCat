@@ -36,8 +36,8 @@ import static org.hamcrest.core.Is.is;
 @RunWith( RobolectricTestRunner.class )
 public class NetCatTest extends Assert implements NetCatListener
 {
-    final static String INPUT_TEST = "Input from this test";
-    final static String INPUT_NC = "Input from netcat process";
+    final static String INPUT_TEST = "Input from this test, привет, €, 汉语";
+    final static String INPUT_NC = "Input from netcat process, пока, £, 语汉";
     final static String HOST = "localhost";
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
