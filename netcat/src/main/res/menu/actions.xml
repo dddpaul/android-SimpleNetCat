@@ -12,15 +12,15 @@
         android:visible="false"
         app:showAsAction="always"/>
     <item
+        android:id="@+id/action_clear"
+        android:title="@string/action_clear"
+        android:icon="@drawable/ic_action_discard"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_share"
         android:title="@string/label_share"
         android:visible="false"
         app:showAsAction="ifRoom"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
-    <item
-        android:id="@+id/action_clear"
-        android:title="@string/action_clear"
-        android:icon="@drawable/ic_action_backspace"
-        android:visible="false"
-        app:showAsAction="ifRoom"/>
 </menu>
