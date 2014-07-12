@@ -17,5 +17,6 @@
     <string name="label_status_idle">Idle</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_clear">Clear</string>
+    <string name="default_port">9999</string>
 
 </resources>

@@ -23,14 +23,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/et_connect_to"
-        android:text="192.168.0.100:9999"
+        android:text=""
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/tv_connect"
         android:layout_alignBottom="@+id/tv_connect"
-        android:layout_toRightOf="@+id/tv_connect"/>
+        android:layout_toRightOf="@+id/tv_connect"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
 
     <Button
         android:id="@+id/b_connect"
@@ -62,7 +64,7 @@
 
     <EditText
         android:id="@+id/et_listen_on"
-        android:text="9999"
+        android:text="@string/default_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/tv_listen"
