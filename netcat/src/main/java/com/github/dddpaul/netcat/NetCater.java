@@ -18,6 +18,7 @@ public interface NetCater
     public void setInput( InputStream input );
     public void setOutput( OutputStream input );
     public boolean isConnected();
+    public boolean isListening();
 
     class Result
     {

@@ -5,7 +5,6 @@ import android.util.Log;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -21,6 +20,7 @@ public class NetCat implements NetCater
 
     private NetCatTask task;
     private NetCatListener listener;
+    private ServerSocketChannel serverChannel;
     private Socket socket;
     private InputStream input;
     private OutputStream output;
@@ -76,6 +76,12 @@ public class NetCat implements NetCater
         return socket != null && socket.isConnected();
     }
 
+    @Override
+    public boolean isListening()
+    {
+        return serverChannel != null;
+    }
+
     public class NetCatTask extends AsyncTask<String, String, Result>
     {
         @Override
@@ -105,7 +111,7 @@ public class NetCat implements NetCater
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
-                        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+                        serverChannel = ServerSocketChannel.open();
                         serverChannel.configureBlocking( false );
                         serverChannel.socket().bind( new InetSocketAddress( port ) );
                         Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
@@ -121,6 +127,7 @@ public class NetCat implements NetCater
                         }
                         if( task.isCancelled() ) {
                             serverChannel.close();
+                            serverChannel = null;
                             Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
                             result.exception = new Exception( "Listening task is cancelled" );
                         }
@@ -145,7 +152,7 @@ public class NetCat implements NetCater
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
                             socket.shutdownOutput();
                             socket.close();
-                            setSocket( null );
+                            socket = null;
                             publishProgress( IDLE.toString() );
                         }
                 }

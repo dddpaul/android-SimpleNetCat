@@ -19,8 +19,8 @@ public class Utils
         return view.length() > 0;
     }
 
-    public static boolean connected( NetCater netCat )
+    public static boolean isActive( NetCater netCat )
     {
-        return netCat != null && netCat.isConnected();
+        return netCat != null && ( netCat.isConnected() || netCat.isListening() );
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             case DISCONNECT:
                 if( netCat.isConnected() ) {
                     disconnect();
-                } else {
+                } else if( netCat.isListening() ) {
                     netCat.cancel();
                 }
                 break;
@@ -166,6 +167,10 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void connect( String connectTo )
     {
+        if( Utils.isActive( netCat )) {
+            Toast.makeText( getActivity(), "Disconnect or stop listening first", Toast.LENGTH_LONG ).show();
+            return;
+        }
         if( !connectTo.matches( "[\\w\\.]+:\\d+" ) ) {
             Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
             return;
@@ -177,6 +182,10 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void listen( String port )
     {
+        if( Utils.isActive( netCat )) {
+            Toast.makeText( getActivity(), "Disconnect or stop listening first", Toast.LENGTH_LONG ).show();
+            return;
+        }
         if( !port.matches( "\\d+" ) ) {
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
@@ -200,7 +209,7 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     private void updateUIWithValidation()
     {
-        if( Utils.connected( netCat ) ) {
+        if( Utils.isActive( netCat ) ) {
             sendButton.setEnabled( Utils.populated( inputText ) );
         } else {
             sendButton.setEnabled( false );
