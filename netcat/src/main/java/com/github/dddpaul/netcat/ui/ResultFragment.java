@@ -61,6 +61,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setRetainInstance( true );
         EventBus.getDefault().register( this );
     }
 
