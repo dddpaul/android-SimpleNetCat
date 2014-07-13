@@ -45,8 +45,8 @@ nc -v -l 9999 < file.in
 
 Simple NetCat will receive data from computer after terminating nc binary (with Ctrl-C).
 
-### USED OPEN SOURCE LIBRARIES
-
+Sincere gratitude for authors of these open-source software:
+   
 * [Butter Knife](http://jakewharton.github.io/butterknife/) - simple views injection.
 * [EventBus](http://github.com/greenrobot/EventBus) - Android-optimized pub/sub event bus.
 * [Robolectric](http://robolectric.org/) - awesome unit test framework.
