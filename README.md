@@ -43,7 +43,9 @@ nc -v -l 9999 < file.in
 
 ### COMMENTS
 
-Simple NetCat will receive data from computer after terminating nc binary (with Ctrl-C).
+**This is important thing!** Simple NetCat will receive data from computer right after terminating nc binary (with Ctrl-C).
+
+We have a [simple solution for Windows users](https://github.com/dddpaul/go-netcat) now. You just can download binary from [Bintray](http://dl.bintray.com/dddpaul/generic/go-netcat/).  
 
 Sincere gratitude for authors of these open-source software:
    
