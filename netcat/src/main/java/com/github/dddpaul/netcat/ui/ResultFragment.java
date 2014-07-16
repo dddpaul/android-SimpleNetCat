@@ -167,6 +167,14 @@ public class ResultFragment extends Fragment implements NetCatListener
         }
     }
 
+    /**
+     * For unit test only
+     */
+    public void setNetCat( NetCater netCat )
+    {
+        this.netCat = netCat;
+    }
+
     public void connect( String connectTo )
     {
         if( Utils.isActive( netCat )) {
