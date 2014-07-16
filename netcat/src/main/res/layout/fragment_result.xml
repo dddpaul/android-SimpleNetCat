@@ -8,15 +8,31 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.github.dddpaul.netcat.ui.MainFragment">
 
+    <!-- Input -->
+    <TextView
+        android:id="@+id/tv_text_to_send"
+        android:text="@string/label_text_to_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"/>
+
     <EditText
         android:id="@+id/et_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:singleLine="false"
-        android:inputType="text" />
+        android:inputType="text"
+        android:layout_below="@+id/tv_text_to_send"
+        android:layout_toLeftOf="@+id/b_send"
+        android:layout_toStartOf="@+id/b_send"
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
 
     <Button
         android:id="@+id/b_send"
@@ -27,22 +43,45 @@
         android:padding="10dp"
         android:enabled="false"
         android:textStyle="bold"
+        android:layout_alignBottom="@+id/et_input"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
+    <!-- Output -->
+    <TextView
+        android:id="@+id/tv_received_text"
+        android:text="@string/label_received_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
         android:layout_below="@+id/et_input"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/et_input"
-        android:layout_alignEnd="@+id/et_input"/>
+        android:layout_marginTop="10dp"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:background="#575C5F"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/hr"
+        android:layout_below="@+id/tv_received_text"
+        android:layout_alignRight="@+id/tv_received_text"
+        android:layout_alignEnd="@+id/tv_received_text"/>
 
     <TextView
         android:id="@+id/tv_output"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:textIsSelectable="true"
-        android:background="@drawable/back_border"
-        android:layout_below="@+id/b_send"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/hr"/>
 
 </RelativeLayout>

@@ -18,34 +18,36 @@
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:paddingTop="10dp"
+        android:paddingTop="5dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="false"/>
 
     <AutoCompleteTextView
         android:id="@+id/et_connect_to"
         android:text=""
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tv_connect"
-        android:layout_alignBottom="@+id/tv_connect"
-        android:layout_toRightOf="@+id/tv_connect"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_below="@+id/tv_connect"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/b_connect"
+        android:layout_toStartOf="@+id/b_connect"/>
 
     <Button
         android:id="@+id/b_connect"
         android:text="@string/label_connect"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:padding="10dp"
         android:enabled="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="false"
+        android:layout_alignBottom="@+id/et_connect_to"
         android:textStyle="bold"
-        android:layout_below="@+id/tv_connect"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="false"
+        android:gravity="center"/>
 
     <!-- Listen -->
     <TextView
@@ -57,31 +59,35 @@
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:paddingTop="10dp"
+        android:paddingTop="5dp"
         android:layout_below="@+id/b_connect"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        />
 
     <EditText
         android:id="@+id/et_listen_on"
         android:text="@string/default_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tv_listen"
-        android:layout_alignBottom="@+id/tv_listen"
-        android:layout_toRightOf="@+id/tv_listen"/>
+        android:layout_below="@+id/tv_listen"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
 
     <Button
         android:id="@+id/b_listen"
         android:text="@string/label_listen"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
         android:enabled="false"
         android:textStyle="bold"
-        android:layout_below="@+id/tv_listen"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignBottom="@+id/et_listen_on"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/et_connect_to"
+        android:layout_toEndOf="@+id/et_connect_to"
+        />
 
 </RelativeLayout>
