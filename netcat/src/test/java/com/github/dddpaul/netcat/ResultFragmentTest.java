@@ -7,10 +7,10 @@ import com.github.dddpaul.netcat.ui.ResultFragment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import dagger.ObjectGraph;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.robolectric.util.FragmentTestUtil.startFragment;
@@ -19,15 +19,12 @@ import static org.robolectric.util.FragmentTestUtil.startFragment;
 @RunWith( RobolectricTestRunner.class )
 public class ResultFragmentTest
 {
-    @Mock
-    private NetCater netCat;
-
     private ResultFragment fragment;
 
     @Before
     public void setUp()
     {
-        MockitoAnnotations.initMocks( this );
+        ObjectGraph.create( new MockNetCatModule() ).inject( this );
         fragment = new ResultFragment();
     }
 

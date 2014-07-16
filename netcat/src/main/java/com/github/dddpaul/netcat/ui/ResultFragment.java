@@ -13,12 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.dddpaul.netcat.NetCatListener;
+import com.github.dddpaul.netcat.NetCatModule;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 import events.FragmentEvent;
@@ -62,9 +64,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        ( (MainActivity) getActivity() ).inject( this );
         setRetainInstance( true );
         EventBus.getDefault().register( this );
+        ObjectGraph.create( new NetCatModule() ).inject( this );
         netCat.setListener( this );
     }
 

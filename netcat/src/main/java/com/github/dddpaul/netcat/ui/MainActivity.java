@@ -12,11 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.github.dddpaul.netcat.NetCatModule;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
-import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 import events.FragmentEvent;
@@ -29,7 +27,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    private ObjectGraph graph;
     private Menu menu;
     private MenuItem cancelItem, clearItem, shareItem, statusItem;
     private ViewPager pager;
@@ -41,9 +38,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
-        // Dependency injection, must be first for proper recreation of fragments with injects after rotate
-        graph = ObjectGraph.create( new NetCatModule() );
-
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
@@ -176,11 +170,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 break;
         }
         onPrepareOptionsMenu( menu );
-    }
-
-    public void inject( Object object )
-    {
-        graph.inject( object );
     }
 
     private Intent getShareIntent( String text )
