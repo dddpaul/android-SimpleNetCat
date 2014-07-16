@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 
@@ -25,7 +27,19 @@ public class NetCat implements NetCater
     private InputStream input;
     private OutputStream output;
 
+    /**
+     * Needs for NetCatModule
+     */
+    @Inject
+    public NetCat() {}
+
     public NetCat( NetCatListener listener )
+    {
+        this.listener = listener;
+    }
+
+    @Override
+    public void setListener( NetCatListener listener )
     {
         this.listener = listener;
     }

@@ -14,6 +14,7 @@ public interface NetCater
     public void cancel();
     public void execute( String ... params );
     public void executeParallel( String ... params );
+    public void setListener( NetCatListener listener );
     public void setSocket( Socket socket );
     public void setInput( InputStream input );
     public void setOutput( OutputStream input );

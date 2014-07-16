@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.dddpaul.netcat.NetCat;
 import com.github.dddpaul.netcat.NetCatListener;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
@@ -29,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
+import javax.inject.Inject;
+
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 import static com.github.dddpaul.netcat.NetCater.State.*;
@@ -38,7 +38,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private ByteArrayOutputStream output;
-    private NetCater netCat;
+
+    @Inject
+    protected NetCater netCat;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -49,9 +51,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     @InjectView( R.id.b_send )
     protected Button sendButton;
 
-    public ResultFragment()
-    {
-    }
+    public ResultFragment() {}
 
     public static ResultFragment newInstance()
     {
@@ -62,8 +62,10 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        ( (MainActivity) getActivity() ).inject( this );
         setRetainInstance( true );
         EventBus.getDefault().register( this );
+        netCat.setListener( this );
     }
 
     @Override
@@ -105,9 +107,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
-    public void netCatIsStarted()
-    {
-    }
+    public void netCatIsStarted() {}
 
     @Override
     public void netCatIsCompleted( Result result )
@@ -176,7 +176,6 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat = new NetCat( this );
         netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
     }
 
@@ -190,7 +189,6 @@ public class ResultFragment extends Fragment implements NetCatListener
             Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
             return;
         }
-        netCat = new NetCat( this );
         netCat.execute( LISTEN.toString(), port );
     }
 
