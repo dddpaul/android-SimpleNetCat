@@ -192,11 +192,11 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void listen( String port )
     {
         if( Utils.isActive( netCat )) {
-            Toast.makeText( getActivity(), "Disconnect or stop listening first", Toast.LENGTH_LONG ).show();
+            Toast.makeText( getActivity(), getString( R.string.error_disconnect_first ), Toast.LENGTH_LONG ).show();
             return;
         }
         if( !port.matches( "\\d+" ) ) {
-            Toast.makeText( getActivity(), "Digits is expected", Toast.LENGTH_LONG ).show();
+            Toast.makeText( getActivity(), getString( R.string.error_port_format ), Toast.LENGTH_LONG ).show();
             return;
         }
         netCat.execute( LISTEN.toString(), port );

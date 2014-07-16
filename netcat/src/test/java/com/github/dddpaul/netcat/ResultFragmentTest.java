@@ -15,6 +15,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowToast;
 
 import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
+import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -83,5 +84,33 @@ public class ResultFragmentTest
         fragment.connect( "127.0.0.1:9999" );
 
         verify( mockNetCat ).execute( CONNECT.toString(), "127.0.0.1", "9999" );
+    }
+
+    /**
+     * Test listen button handling (from {@link com.github.dddpaul.netcat.ui.MainFragment})
+     */
+    @Test
+    public void testListen()
+    {
+        startFragment( fragment );
+
+        // When netCat is listening error should be toasted
+        when( mockNetCat.isListening() ).thenReturn( true );
+        fragment.setNetCat( mockNetCat );
+        fragment.connect( "" );
+
+        assertThat( ShadowToast.getTextOfLatestToast(), is( fragment.getString( R.string.error_disconnect_first ) ) );
+
+        // When netCat is not listening but connectTo string has invalid format error should be toasted too
+        when( mockNetCat.isListening() ).thenReturn( false );
+        fragment.setNetCat( mockNetCat );
+        fragment.listen( "some improper port string" );
+
+        assertThat( ShadowToast.getTextOfLatestToast(), is( fragment.getString( R.string.error_port_format ) ) );
+
+        // Test proper listen at last
+        fragment.listen( "9999" );
+
+        verify( mockNetCat ).execute( LISTEN.toString(), "9999" );
     }
 }
