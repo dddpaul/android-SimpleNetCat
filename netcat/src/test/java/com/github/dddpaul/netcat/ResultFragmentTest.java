@@ -12,8 +12,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowToast;
 
+import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
 import static org.fest.assertions.api.ANDROID.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.robolectric.util.FragmentTestUtil.startFragment;
 
@@ -51,5 +55,33 @@ public class ResultFragmentTest
         inputText.setText( "some text" );
 
         assertThat( sendButton ).isEnabled();
+    }
+
+    /**
+     * Test connect button handling (from {@link com.github.dddpaul.netcat.ui.MainFragment})
+     */
+    @Test
+    public void testConnect()
+    {
+        startFragment( fragment );
+
+        // When netCat is connected error should be toasted
+        when( mockNetCat.isConnected() ).thenReturn( true );
+        fragment.setNetCat( mockNetCat );
+        fragment.connect( "" );
+
+        assertThat( ShadowToast.getTextOfLatestToast(), is( fragment.getString( R.string.error_disconnect_first ) ) );
+
+        // When netCat is not connected but connectTo string has invalid format error should be toasted too
+        when( mockNetCat.isConnected() ).thenReturn( false );
+        fragment.setNetCat( mockNetCat );
+        fragment.connect( "some improper connectTo string" );
+
+        assertThat( ShadowToast.getTextOfLatestToast(), is( fragment.getString( R.string.error_host_port_format ) ) );
+
+        // Test proper connect at last
+        fragment.connect( "127.0.0.1:9999" );
+
+        verify( mockNetCat ).execute( CONNECT.toString(), "127.0.0.1", "9999" );
     }
 }

@@ -178,11 +178,11 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void connect( String connectTo )
     {
         if( Utils.isActive( netCat )) {
-            Toast.makeText( getActivity(), "Disconnect or stop listening first", Toast.LENGTH_LONG ).show();
+            Toast.makeText( getActivity(), getString( R.string.error_disconnect_first ), Toast.LENGTH_LONG ).show();
             return;
         }
         if( !connectTo.matches( "[\\w\\.]+:\\d+" ) ) {
-            Toast.makeText( getActivity(), "host:port format is expected", Toast.LENGTH_LONG ).show();
+            Toast.makeText( getActivity(), getString( R.string.error_host_port_format ), Toast.LENGTH_LONG ).show();
             return;
         }
         String[] tokens = connectTo.split( ":" );

@@ -18,5 +18,7 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_clear">Clear</string>
     <string name="default_port">9999</string>
+    <string name="error_disconnect_first">Disconnect or stop listening first</string>
+    <string name="error_host_port_format">host:port format is expected</string>
 
 </resources>
