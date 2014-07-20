@@ -165,13 +165,7 @@ public class NetCat implements NetCater
                         if( socket != null && socket.isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Disconnecting from %s:%d",
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
-                            try {
-                                socket.shutdownOutput();
-                            } catch( SocketException e ) {
-                                // Catch and nullify ENOTCONN( Transport is not connected) error
-                                // which is thrown sometimes when talking to HTTP servers
-                                Log.w( CLASS_NAME, e.getMessage() );
-                            }
+                            socket.shutdownOutput();
                             socket.close();
                             socket = null;
                             publishProgress( IDLE.toString() );
