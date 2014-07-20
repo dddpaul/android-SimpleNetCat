@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -164,7 +165,13 @@ public class NetCat implements NetCater
                         if( socket != null && socket.isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Disconnecting from %s:%d",
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
-                            socket.shutdownOutput();
+                            try {
+                                socket.shutdownOutput();
+                            } catch( SocketException e ) {
+                                // Catch and nullify ENOTCONN( Transport is not connected) error
+                                // which is thrown sometimes when talking to HTTP servers
+                                Log.w( CLASS_NAME, e.getMessage() );
+                            }
                             socket.close();
                             socket = null;
                             publishProgress( IDLE.toString() );
