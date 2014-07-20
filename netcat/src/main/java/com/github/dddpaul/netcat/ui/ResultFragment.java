@@ -126,6 +126,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 break;
             case RECEIVE:
                 outputView.setText( output.toString() );
+                disconnect();
                 break;
             case SEND:
                 inputText.setText( "" );
