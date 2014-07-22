@@ -125,7 +125,9 @@ public class ResultFragment extends Fragment implements NetCatListener
                 EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
                 break;
             case RECEIVE:
-                outputView.setText( output.toString() );
+                // Strip last CR+LF
+                String s = output.toString();
+                outputView.setText( s.substring( 0, s.length() - 1 ));
                 disconnect();
                 break;
             case SEND:
