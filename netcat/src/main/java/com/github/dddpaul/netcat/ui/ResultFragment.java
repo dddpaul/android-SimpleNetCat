@@ -20,6 +20,7 @@ import com.github.dddpaul.netcat.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
@@ -90,15 +91,13 @@ public class ResultFragment extends Fragment implements NetCatListener
             }
         };
         inputText.addTextChangedListener( watcher );
-        sendButton.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                send();
-            }
-        } );
         return view;
+    }
+
+    @OnClick( R.id.b_send )
+    protected void onSendButtonClick()
+    {
+        send();
     }
 
     @Override

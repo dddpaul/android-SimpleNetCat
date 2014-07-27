@@ -19,12 +19,12 @@ import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import events.FragmentEvent;
 
@@ -77,33 +77,29 @@ public class MainFragment extends Fragment
         };
         connectToText.setAdapter( connectToArrayAdapter );
         connectToText.addTextChangedListener( watcher );
-        connectButton.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                String connectTo = connectToText.getText().toString();
-                if( connectToSet.add( connectTo )) {
-                    connectToArrayAdapter.add( connectTo );
-                }
-
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putStringSet( Constants.CONNECT_TO_SET_KEY, connectToSet );
-                editor.apply();
-
-                EventBus.getDefault().post( new FragmentEvent( CONNECT, connectTo ) );
-            }
-        } );
         listenOnText.addTextChangedListener( watcher );
-        listenButton.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOnText.getText().toString() ) );
-            }
-        } );
         return view;
+    }
+
+    @OnClick( R.id.b_connect )
+    protected void onConnectButtonClick()
+    {
+        String connectTo = connectToText.getText().toString();
+        if( connectToSet.add( connectTo )) {
+            connectToArrayAdapter.add( connectTo );
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putStringSet( Constants.CONNECT_TO_SET_KEY, connectToSet );
+        editor.apply();
+
+        EventBus.getDefault().post( new FragmentEvent( CONNECT, connectTo ) );
+    }
+
+    @OnClick( R.id.b_listen )
+    protected void onListenButtonClick()
+    {
+        EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOnText.getText().toString() ) );
     }
 
     @Override
