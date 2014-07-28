@@ -4,7 +4,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:baselineAligned="false">
 
     <fragment
         android:layout_width="wrap_content"
@@ -23,4 +23,11 @@
         android:id="@+id/fragment_result"
         tools:layout="@layout/fragment_result"
         />
+
+    <FrameLayout
+        android:id="@+id/fragment_netcat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+    />
+
 </LinearLayout>

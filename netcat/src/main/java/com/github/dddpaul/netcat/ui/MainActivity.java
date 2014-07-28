@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
@@ -20,6 +21,7 @@ import events.ActivityEvent;
 import events.FragmentEvent;
 
 import static com.github.dddpaul.netcat.Constants.ACTIONS_VISIBILITY_KEY;
+import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
 import static com.github.dddpaul.netcat.Constants.NETCAT_STATE_KEY;
 import static com.github.dddpaul.netcat.NetCater.*;
 
@@ -47,7 +49,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         EventBus.getDefault().register( this );
 
-        if( savedInstanceState != null ) {
+        // Instantiate headless retained fragment for the first time init
+        if( savedInstanceState == null ) {
+            FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
+            trx.add( R.id.fragment_netcat, NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
+            trx.commit();
+        } else {
             actionsVisibility = savedInstanceState.getBooleanArray( ACTIONS_VISIBILITY_KEY );
             try {
                 netCatState = State.valueOf( savedInstanceState.getString( NETCAT_STATE_KEY ) );

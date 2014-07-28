@@ -2,7 +2,6 @@ package com.github.dddpaul.netcat.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.NetCatListener;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
@@ -39,8 +37,6 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    // Headless fragment with inner NetCat AsyncTask
-    private NetCatFragment netCatFragment;
     private NetCater netCat;
     private ByteArrayOutputStream output;
 
@@ -65,13 +61,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onCreate( savedInstanceState );
         EventBus.getDefault().register( this );
-        netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
-        if( netCatFragment == null ) {
-            netCatFragment = NetCatFragment.newInstance();
-            FragmentTransaction trx = getFragmentManager().beginTransaction();
-            trx.add( netCatFragment, Constants.NETCAT_FRAGMENT_TAG );
-            trx.commit();
-        }
     }
 
     @Override
@@ -108,6 +97,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onResume();
         updateUIWithValidation();
+        NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
+        netCat = netCatFragment.getNetCat();
+        netCat.setListener( this );
     }
 
     @Override
@@ -151,15 +143,6 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void onEvent( FragmentEvent event )
     {
-        if( event.state != null ) {
-            switch( event.state ) {
-                case IDLE:
-                    netCat = netCatFragment.getNetCat();
-                    netCat.setListener( this );
-                    break;
-            }
-        }
-
         if( event.op != null ) {
             switch( event.op ) {
                 case CONNECT:

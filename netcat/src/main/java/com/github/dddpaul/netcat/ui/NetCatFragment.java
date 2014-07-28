@@ -9,10 +9,6 @@ import com.github.dddpaul.netcat.NetCater;
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
-import de.greenrobot.event.EventBus;
-import events.FragmentEvent;
-
-import static com.github.dddpaul.netcat.NetCater.State.IDLE;
 
 public class NetCatFragment extends Fragment
 {
@@ -34,7 +30,6 @@ public class NetCatFragment extends Fragment
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
         ObjectGraph.create( new NetCatModule() ).inject( this );
-        EventBus.getDefault().post( new FragmentEvent( IDLE ));
     }
 
     public NetCater getNetCat()
