@@ -39,6 +39,8 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
+    // Headless fragment with inner NetCat AsyncTask
+    private NetCatFragment netCatFragment;
     private NetCater netCat;
     private ByteArrayOutputStream output;
 
@@ -63,16 +65,13 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onCreate( savedInstanceState );
         EventBus.getDefault().register( this );
-        // Add headless fragment with inner NetCat AsyncTask
-        NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
+        netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
         if( netCatFragment == null ) {
             netCatFragment = NetCatFragment.newInstance();
             FragmentTransaction trx = getFragmentManager().beginTransaction();
             trx.add( netCatFragment, Constants.NETCAT_FRAGMENT_TAG );
             trx.commit();
         }
-        netCat = netCatFragment.getNetCat();
-        netCat.setListener( this );
     }
 
     @Override
@@ -152,24 +151,35 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void onEvent( FragmentEvent event )
     {
-        switch( event.op ) {
-            case CONNECT:
-                connect( event.data );
-                break;
-            case LISTEN:
-                listen( event.data );
-                break;
-            case DISCONNECT:
-                if( netCat.isConnected() ) {
-                    disconnect();
-                } else if( netCat.isListening() ) {
-                    netCat.cancel();
-                }
-                break;
-            case CLEAR_OUTPUT_VIEW:
-                outputView.setText( "" );
-                EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
-                break;
+        if( event.state != null ) {
+            switch( event.state ) {
+                case IDLE:
+                    netCat = netCatFragment.getNetCat();
+                    netCat.setListener( this );
+                    break;
+            }
+        }
+
+        if( event.op != null ) {
+            switch( event.op ) {
+                case CONNECT:
+                    connect( event.data );
+                    break;
+                case LISTEN:
+                    listen( event.data );
+                    break;
+                case DISCONNECT:
+                    if( netCat.isConnected() ) {
+                        disconnect();
+                    } else if( netCat.isListening() ) {
+                        netCat.cancel();
+                    }
+                    break;
+                case CLEAR_OUTPUT_VIEW:
+                    outputView.setText( "" );
+                    EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
+                    break;
+            }
         }
     }
 
