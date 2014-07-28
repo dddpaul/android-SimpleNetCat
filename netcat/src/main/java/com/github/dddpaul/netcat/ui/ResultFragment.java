@@ -2,6 +2,7 @@ package com.github.dddpaul.netcat.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -12,8 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.NetCatListener;
-import com.github.dddpaul.netcat.NetCatModule;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
@@ -21,7 +22,6 @@ import com.github.dddpaul.netcat.Utils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 import events.FragmentEvent;
@@ -30,8 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
-import javax.inject.Inject;
-
+import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 import static com.github.dddpaul.netcat.NetCater.State.*;
@@ -40,10 +39,8 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
+    private NetCater netCat;
     private ByteArrayOutputStream output;
-
-    @Inject
-    protected NetCater netCat;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -65,9 +62,16 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        setRetainInstance( true );
         EventBus.getDefault().register( this );
-        ObjectGraph.create( new NetCatModule() ).inject( this );
+        // Add headless fragment with inner NetCat AsyncTask
+        NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
+        if( netCatFragment == null ) {
+            netCatFragment = NetCatFragment.newInstance();
+            FragmentTransaction trx = getFragmentManager().beginTransaction();
+            trx.add( netCatFragment, Constants.NETCAT_FRAGMENT_TAG );
+            trx.commit();
+        }
+        netCat = netCatFragment.getNetCat();
         netCat.setListener( this );
     }
 
