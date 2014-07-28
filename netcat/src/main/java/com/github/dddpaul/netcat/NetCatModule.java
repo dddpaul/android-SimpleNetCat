@@ -1,6 +1,6 @@
 package com.github.dddpaul.netcat;
 
-import com.github.dddpaul.netcat.ui.ResultFragment;
+import com.github.dddpaul.netcat.ui.NetCatFragment;
 
 import javax.inject.Singleton;
 
@@ -9,7 +9,7 @@ import dagger.Provides;
 
 @Module(
     injects = {
-        ResultFragment.class
+        NetCatFragment.class
     },
     complete = false
 )

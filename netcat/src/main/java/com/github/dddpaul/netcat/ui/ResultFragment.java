@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.dddpaul.netcat.NetCatListener;
-import com.github.dddpaul.netcat.NetCatModule;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
@@ -21,7 +20,6 @@ import com.github.dddpaul.netcat.Utils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
 import events.FragmentEvent;
@@ -30,8 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
-import javax.inject.Inject;
-
+import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 import static com.github.dddpaul.netcat.NetCater.State.*;
@@ -40,10 +37,8 @@ public class ResultFragment extends Fragment implements NetCatListener
 {
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
+    private NetCater netCat;
     private ByteArrayOutputStream output;
-
-    @Inject
-    protected NetCater netCat;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -65,10 +60,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        setRetainInstance( true );
         EventBus.getDefault().register( this );
-        ObjectGraph.create( new NetCatModule() ).inject( this );
-        netCat.setListener( this );
     }
 
     @Override
@@ -105,6 +97,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onResume();
         updateUIWithValidation();
+        NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
+        netCat = netCatFragment.getNetCat();
+        netCat.setListener( this );
     }
 
     @Override
@@ -148,24 +143,26 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     public void onEvent( FragmentEvent event )
     {
-        switch( event.op ) {
-            case CONNECT:
-                connect( event.data );
-                break;
-            case LISTEN:
-                listen( event.data );
-                break;
-            case DISCONNECT:
-                if( netCat.isConnected() ) {
-                    disconnect();
-                } else if( netCat.isListening() ) {
-                    netCat.cancel();
-                }
-                break;
-            case CLEAR_OUTPUT_VIEW:
-                outputView.setText( "" );
-                EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
-                break;
+        if( event.op != null ) {
+            switch( event.op ) {
+                case CONNECT:
+                    connect( event.data );
+                    break;
+                case LISTEN:
+                    listen( event.data );
+                    break;
+                case DISCONNECT:
+                    if( netCat.isConnected() ) {
+                        disconnect();
+                    } else if( netCat.isListening() ) {
+                        netCat.cancel();
+                    }
+                    break;
+                case CLEAR_OUTPUT_VIEW:
+                    outputView.setText( "" );
+                    EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
+                    break;
+            }
         }
     }
 

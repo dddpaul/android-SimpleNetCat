@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
@@ -20,6 +21,7 @@ import events.ActivityEvent;
 import events.FragmentEvent;
 
 import static com.github.dddpaul.netcat.Constants.ACTIONS_VISIBILITY_KEY;
+import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
 import static com.github.dddpaul.netcat.Constants.NETCAT_STATE_KEY;
 import static com.github.dddpaul.netcat.NetCater.*;
 
@@ -45,31 +47,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
 
-        // Set up the ViewPager with the sections adapter
-        SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
-        pager = (ViewPager) findViewById( R.id.pager );
-        pager.setAdapter( adapter );
-        pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
-        {
-            @Override
-            public void onPageSelected( int position )
-            {
-                actionBar.setSelectedNavigationItem( position );
-            }
-        } );
-
-        // For each of the sections in the app, add a tab to the action bar
-        for( int i = 0; i < adapter.getCount(); i++ ) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText( adapter.getPageTitle( i ) )
-                            .setTabListener( this )
-            );
-        }
-
         EventBus.getDefault().register( this );
 
-        if( savedInstanceState != null ) {
+        // Instantiate headless retained fragment for the first time init
+        if( savedInstanceState == null ) {
+            FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
+            trx.add( R.id.fragment_netcat, NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
+            trx.commit();
+        } else {
             actionsVisibility = savedInstanceState.getBooleanArray( ACTIONS_VISIBILITY_KEY );
             try {
                 netCatState = State.valueOf( savedInstanceState.getString( NETCAT_STATE_KEY ) );
@@ -77,11 +62,36 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 netCatState = null;
             }
         }
+
+        // Set up the ViewPager with the sections adapter
+        pager = (ViewPager) findViewById( R.id.pager );
+        if( pager != null ) {
+            SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
+            pager.setAdapter( adapter );
+            pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
+            {
+                @Override
+                public void onPageSelected( int position )
+                {
+                    actionBar.setSelectedNavigationItem( position );
+                }
+            } );
+
+            // For each of the sections in the app, add a tab to the action bar
+            for( int i = 0; i < adapter.getCount(); i++ ) {
+                actionBar.addTab(
+                        actionBar.newTab()
+                                .setText( adapter.getPageTitle( i ) )
+                                .setTabListener( this )
+                );
+            }
+        }
     }
 
     @Override
     public void onDestroy()
     {
+        pager = null;
         EventBus.getDefault().unregister( this );
         super.onDestroy();
     }
@@ -131,7 +141,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction )
     {
-        pager.setCurrentItem( tab.getPosition() );
+        if( pager != null ) {
+            pager.setCurrentItem( tab.getPosition() );
+        }
     }
 
     @Override
