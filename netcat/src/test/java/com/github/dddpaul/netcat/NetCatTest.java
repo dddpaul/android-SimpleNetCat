@@ -16,7 +16,6 @@ import org.robolectric.shadows.ShadowLog;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -202,14 +201,13 @@ public class NetCatTest extends Assert implements NetCatListener
         }).start();
 
         // Receive string from external nc process
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        netCat.setOutput( output );
+        netCat.createOutput();
         netCat.execute( RECEIVE.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
         assertThat( result.op, is( RECEIVE ));
-        line = new String( output.toByteArray() ).trim();
+        line = netCat.getOutput().toString().trim();
         Log.i( CLASS_NAME, line  );
         assertThat( line, is( INPUT_NC ));
 

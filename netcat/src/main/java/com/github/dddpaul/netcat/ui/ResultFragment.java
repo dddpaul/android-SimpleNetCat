@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private NetCater netCat;
-    private ByteArrayOutputStream output;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -66,6 +66,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     @Override
     public void onDestroy()
     {
+        Log.d( CLASS_NAME, "onDestroy() is called by fragment id=" + getId() );
         EventBus.getDefault().unregister( this );
         super.onDestroy();
     }
@@ -98,8 +99,10 @@ public class ResultFragment extends Fragment implements NetCatListener
         super.onResume();
         updateUIWithValidation();
         NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
-        netCat = netCatFragment.getNetCat();
-        netCat.setListener( this );
+        if( netCatFragment != null ) {
+            netCat = netCatFragment.getNetCat();
+            netCat.setListener( this );
+        }
     }
 
     @Override
@@ -112,19 +115,21 @@ public class ResultFragment extends Fragment implements NetCatListener
             case CONNECT:
             case LISTEN:
                 Socket socket = result.getSocket();
-                output = new ByteArrayOutputStream();
                 netCat.setSocket( socket );
-                netCat.setOutput( output );
+                netCat.createOutput();
                 netCat.executeParallel( RECEIVE.toString() );
                 EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
                 break;
             case RECEIVE:
                 // Strip last CR+LF
-                String s = output.toString();
+                String s = netCat.getOutput().toString();
                 if( s.length() > 0 ) {
                     outputView.setText( s.substring( 0, s.length() - 1 ) );
                 }
-                disconnect();
+                netCat.closeOutput();
+                if( netCat.isConnected() ) {
+                    disconnect();
+                }
                 break;
             case SEND:
                 inputText.setText( "" );
@@ -148,6 +153,8 @@ public class ResultFragment extends Fragment implements NetCatListener
      */
     public void onEvent( FragmentEvent event )
     {
+        // TODO: Sometimes after orientation change events are doubled
+        Log.d( CLASS_NAME, "Received " + event.op.toString() + " event by fragment id=" + getId() );
         switch( event.op ) {
             case CONNECT:
                 connect( event.data );

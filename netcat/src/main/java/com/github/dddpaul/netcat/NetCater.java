@@ -17,7 +17,9 @@ public interface NetCater
     public void setListener( NetCatListener listener );
     public void setSocket( Socket socket );
     public void setInput( InputStream input );
-    public void setOutput( OutputStream input );
+    public void createOutput();
+    public void closeOutput();
+    public OutputStream getOutput();
     public boolean isConnected();
     public boolean isListening();
 
