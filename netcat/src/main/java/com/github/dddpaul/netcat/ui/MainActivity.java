@@ -163,7 +163,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 shareItem.setVisible( false );
                 statusItem.setVisible( true );
                 stateView.setText( event.netCatState.toString() );
-                pager.setCurrentItem( getResources().getInteger( R.integer.result_fragment_position ), false );
+                if( pager != null ) {
+                    pager.setCurrentItem( getResources().getInteger( R.integer.result_fragment_position ), false );
+                }
                 break;
             case IDLE:
                 cancelItem.setVisible( false );
