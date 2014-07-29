@@ -202,14 +202,13 @@ public class NetCatTest extends Assert implements NetCatListener
         }).start();
 
         // Receive string from external nc process
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        netCat.setOutput( output );
+        netCat.createOutput();
         netCat.execute( RECEIVE.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
         assertThat( result.op, is( RECEIVE ));
-        line = new String( output.toByteArray() ).trim();
+        line = new String(( (ByteArrayOutputStream) netCat.getOutput() ).toByteArray() ).trim();
         Log.i( CLASS_NAME, line  );
         assertThat( line, is( INPUT_NC ));
 

@@ -58,9 +58,27 @@ public class NetCat implements NetCater
     }
 
     @Override
-    public void setOutput( OutputStream output )
+    public void createOutput()
     {
-        this.output = output;
+        this.output = new ByteArrayOutputStream();
+    }
+
+    @Override
+    public void closeOutput()
+    {
+        try {
+            output.flush();
+            output.close();
+        } catch( IOException e ) {
+            Log.e( CLASS_NAME, e.getMessage() );
+        }
+        output = null;
+    }
+
+    @Override
+    public OutputStream getOutput()
+    {
+        return output;
     }
 
     @Override
