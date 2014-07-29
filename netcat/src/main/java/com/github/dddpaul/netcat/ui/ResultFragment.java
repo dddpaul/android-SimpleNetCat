@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
 import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
+import static com.github.dddpaul.netcat.Constants.RECEIVED_TEXT_KEY;
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 import static com.github.dddpaul.netcat.NetCater.State.*;
@@ -72,6 +73,13 @@ public class ResultFragment extends Fragment implements NetCatListener
     }
 
     @Override
+    public void onSaveInstanceState( Bundle outState )
+    {
+        super.onSaveInstanceState( outState );
+        outState.putString( RECEIVED_TEXT_KEY, outputView.getText().toString() );
+    }
+
+    @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
         View view = inflater.inflate( R.layout.fragment_result, container, false );
@@ -84,6 +92,13 @@ public class ResultFragment extends Fragment implements NetCatListener
             }
         };
         inputText.addTextChangedListener( watcher );
+        if( savedInstanceState != null ) {
+            Log.d( CLASS_NAME, "onCreateView() is called by fragment id=" + getId() +
+                    ", savedText=" + savedInstanceState.getString( RECEIVED_TEXT_KEY, "" ));
+            outputView.setText( savedInstanceState.getString( RECEIVED_TEXT_KEY, "" ));
+        } else {
+            outputView.setText( "aaa" );
+        }
         return view;
     }
 
