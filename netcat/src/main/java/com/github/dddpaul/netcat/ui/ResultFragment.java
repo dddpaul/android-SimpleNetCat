@@ -3,7 +3,6 @@ package com.github.dddpaul.netcat.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +25,6 @@ import events.ActivityEvent;
 import events.FragmentEvent;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
 import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
@@ -40,6 +38,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private NetCater netCat;
+    private TextWatcherAdapter watcher;
 
     @InjectView( R.id.et_input )
     protected EditText inputText;
@@ -68,6 +67,8 @@ public class ResultFragment extends Fragment implements NetCatListener
     public void onDestroy()
     {
         Log.d( CLASS_NAME, "onDestroy() is called by fragment id=" + getId() );
+        inputText.removeTextChangedListener( watcher );
+        sendButton.setOnClickListener( null );
         EventBus.getDefault().unregister( this );
         super.onDestroy();
     }
@@ -84,13 +85,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         View view = inflater.inflate( R.layout.fragment_result, container, false );
         ButterKnife.inject( this, view );
-        TextWatcher watcher = new TextWatcherAdapter()
-        {
-            public void afterTextChanged( final Editable editable )
-            {
-                updateUIWithValidation();
-            }
-        };
+        watcher = createTextWatcherAdapter();
         inputText.addTextChangedListener( watcher );
         if( savedInstanceState != null ) {
             Log.d( CLASS_NAME, "onCreateView() is called by fragment id=" + getId() +
@@ -246,5 +241,16 @@ public class ResultFragment extends Fragment implements NetCatListener
         } else {
             sendButton.setEnabled( false );
         }
+    }
+
+    private TextWatcherAdapter createTextWatcherAdapter()
+    {
+        return new TextWatcherAdapter()
+        {
+            public void afterTextChanged( final Editable editable )
+            {
+                updateUIWithValidation();
+            }
+        };
     }
 }
