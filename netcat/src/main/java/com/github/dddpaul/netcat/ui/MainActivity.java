@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
@@ -91,7 +90,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onDestroy()
     {
-        pager = null;
         EventBus.getDefault().unregister( this );
         super.onDestroy();
     }

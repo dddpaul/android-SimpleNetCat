@@ -121,7 +121,9 @@ public class ResultFragment extends Fragment implements NetCatListener
             case RECEIVE:
                 // Strip last CR+LF
                 String s = output.toString();
-                outputView.setText( s.substring( 0, s.length() - 1 ));
+                if( s.length() > 0 ) {
+                    outputView.setText( s.substring( 0, s.length() - 1 ) );
+                }
                 disconnect();
                 break;
             case SEND:
@@ -141,28 +143,29 @@ public class ResultFragment extends Fragment implements NetCatListener
         Toast.makeText( getActivity(), result.getErrorMessage(), Toast.LENGTH_LONG ).show();
     }
 
+    /**
+     * Event handler
+     */
     public void onEvent( FragmentEvent event )
     {
-        if( event.op != null ) {
-            switch( event.op ) {
-                case CONNECT:
-                    connect( event.data );
-                    break;
-                case LISTEN:
-                    listen( event.data );
-                    break;
-                case DISCONNECT:
-                    if( netCat.isConnected() ) {
-                        disconnect();
-                    } else if( netCat.isListening() ) {
-                        netCat.cancel();
-                    }
-                    break;
-                case CLEAR_OUTPUT_VIEW:
-                    outputView.setText( "" );
-                    EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
-                    break;
-            }
+        switch( event.op ) {
+            case CONNECT:
+                connect( event.data );
+                break;
+            case LISTEN:
+                listen( event.data );
+                break;
+            case DISCONNECT:
+                if( netCat.isConnected() ) {
+                    disconnect();
+                } else if( netCat.isListening() ) {
+                    netCat.cancel();
+                }
+                break;
+            case CLEAR_OUTPUT_VIEW:
+                outputView.setText( "" );
+                EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
+                break;
         }
     }
 
