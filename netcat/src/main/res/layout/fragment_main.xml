@@ -46,8 +46,8 @@
         android:layout_alignParentEnd="false"
         android:layout_alignBottom="@+id/et_connect_to"
         android:textStyle="bold"
-        android:layout_alignParentStart="false"
         android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         />
 
     <!-- Listen -->
@@ -90,6 +90,7 @@
         android:layout_alignParentEnd="true"
         android:layout_toRightOf="@+id/et_connect_to"
         android:layout_toEndOf="@+id/et_connect_to"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         />
 
 </RelativeLayout>
