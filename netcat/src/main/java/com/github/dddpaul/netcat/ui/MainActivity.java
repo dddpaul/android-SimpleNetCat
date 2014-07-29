@@ -92,6 +92,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onDestroy()
     {
         EventBus.getDefault().unregister( this );
+        if( pager != null ) {
+            pager.removeAllViews();
+            pager.setAdapter( null );
+            pager = null;
+        }
         super.onDestroy();
     }
 

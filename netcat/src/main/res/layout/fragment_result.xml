@@ -51,6 +51,7 @@
         android:layout_alignBottom="@+id/et_input"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         />
 
     <!-- Output -->
@@ -70,12 +71,11 @@
         />
 
     <View
-        android:layout_width="fill_parent"
-        android:layout_height="0.5dip"
-        android:background="#575C5F"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hr_height"
+        android:background="@color/hr"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/hr"
         android:layout_below="@+id/tv_received_text"
         android:layout_alignRight="@+id/tv_received_text"
         android:layout_alignEnd="@+id/tv_received_text"
@@ -90,8 +90,8 @@
         android:textIsSelectable="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/hr"
+        android:layout_below="@+id/tv_received_text"
         android:scrollbars="vertical"
-        />
+        android:layout_marginTop="5dp"/>
 
 </RelativeLayout>
