@@ -65,26 +65,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Set up the ViewPager with the sections adapter
         pager = (ViewPager) findViewById( R.id.pager );
-        if( pager != null ) {
-            SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
-            pager.setAdapter( adapter );
-            pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
+        pager.setAdapter( adapter );
+        pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
+        {
+            @Override
+            public void onPageSelected( int position )
             {
-                @Override
-                public void onPageSelected( int position )
-                {
-                    actionBar.setSelectedNavigationItem( position );
-                }
-            } );
-
-            // For each of the sections in the app, add a tab to the action bar
-            for( int i = 0; i < adapter.getCount(); i++ ) {
-                actionBar.addTab(
-                        actionBar.newTab()
-                                .setText( adapter.getPageTitle( i ) )
-                                .setTabListener( this )
-                );
+                actionBar.setSelectedNavigationItem( position );
             }
+        } );
+
+        // For each of the sections in the app, add a tab to the action bar
+        for( int i = 0; i < adapter.getCount(); i++ ) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText( adapter.getPageTitle( i ) )
+                            .setTabListener( this )
+            );
         }
     }
 
@@ -145,9 +143,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction )
     {
-        if( pager != null ) {
-            pager.setCurrentItem( tab.getPosition() );
-        }
+        pager.setCurrentItem( tab.getPosition() );
     }
 
     @Override

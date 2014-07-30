@@ -1,5 +1,6 @@
 package com.github.dddpaul.netcat.ui;
 
+import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -28,6 +29,18 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter
                 return ResultFragment.newInstance();
             default:
                 return null;
+        }
+    }
+
+    @Override
+    public float getPageWidth( int position )
+    {
+        switch( activity.getResources().getConfiguration().orientation ) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+                return 0.5f;
+            default:
+            case Configuration.ORIENTATION_PORTRAIT:
+                return 1f;
         }
     }
 
