@@ -1,6 +1,7 @@
 package com.github.dddpaul.netcat.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -43,10 +44,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        // Set up the action bar
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
-
         EventBus.getDefault().register( this );
 
         // Instantiate headless retained fragment for the first time init
@@ -67,22 +64,30 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         pager = (ViewPager) findViewById( R.id.pager );
         SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
         pager.setAdapter( adapter );
-        pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
-        {
-            @Override
-            public void onPageSelected( int position )
-            {
-                actionBar.setSelectedNavigationItem( position );
-            }
-        } );
 
-        // For each of the sections in the app, add a tab to the action bar
-        for( int i = 0; i < adapter.getCount(); i++ ) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText( adapter.getPageTitle( i ) )
-                            .setTabListener( this )
-            );
+        // No need for tabs in landscape mode
+        if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ) {
+            // Set up the action bar
+            final ActionBar actionBar = getSupportActionBar();
+            actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
+
+            // For each of the sections in the app, add a tab to the action bar
+            for( int i = 0; i < adapter.getCount(); i++ ) {
+                actionBar.addTab(
+                        actionBar.newTab()
+                                .setText( adapter.getPageTitle( i ) )
+                                .setTabListener( this )
+                );
+            }
+
+            pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
+            {
+                @Override
+                public void onPageSelected( int position )
+                {
+                    actionBar.setSelectedNavigationItem( position );
+                }
+            } );
         }
     }
 
