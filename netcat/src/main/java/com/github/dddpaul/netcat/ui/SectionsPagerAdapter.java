@@ -37,7 +37,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter
     {
         switch( activity.getResources().getConfiguration().orientation ) {
             case Configuration.ORIENTATION_LANDSCAPE:
-                return 0.5f;
+                switch( position ) {
+                    case 0:
+                        return 0.4f;
+                    case 1:
+                        return 0.6f;
+                }
             default:
             case Configuration.ORIENTATION_PORTRAIT:
                 return 1f;
