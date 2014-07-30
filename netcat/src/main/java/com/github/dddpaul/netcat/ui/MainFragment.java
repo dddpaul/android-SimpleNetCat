@@ -2,13 +2,10 @@ package com.github.dddpaul.netcat.ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.R;
@@ -111,13 +107,6 @@ public class MainFragment extends Fragment
     {
         super.onResume();
         updateUIWithValidation();
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        DisplayMetrics metrics = new DisplayMetrics();
-        display.getMetrics( metrics );
-        float density  = getResources().getDisplayMetrics().density;
-        float dpHeight = metrics.heightPixels / density;
-        float dpWidth  = metrics.widthPixels / density;
-        Toast.makeText( getActivity(), String.format( "Screen dimension is %.0fx%.0f dp", dpWidth, dpHeight ), Toast.LENGTH_LONG ).show();
     }
 
     private void updateUIWithValidation()

@@ -9,10 +9,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
@@ -65,8 +68,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
         pager.setAdapter( adapter );
 
-        // No need for tabs in landscape mode
-        if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ) {
+        if( !isMultiPaneLayout() ) {
             // Set up the action bar
             final ActionBar actionBar = getSupportActionBar();
             actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
@@ -189,6 +191,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 break;
         }
         onPrepareOptionsMenu( menu );
+    }
+
+    public boolean isMultiPaneLayout()
+    {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float dpWidth  = metrics.widthPixels / metrics.density;
+        return dpWidth >= getResources().getInteger( R.integer.multi_pane_layout_width ) ;
     }
 
     private Intent getShareIntent( String text )
