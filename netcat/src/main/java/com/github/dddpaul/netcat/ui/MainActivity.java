@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Instantiate headless retained fragment for the first time init
         if( savedInstanceState == null ) {
             FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
-            trx.add( R.id.fragment_netcat, NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
+            trx.add( NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
             trx.commit();
         } else {
             actionsVisibility = savedInstanceState.getBooleanArray( ACTIONS_VISIBILITY_KEY );
