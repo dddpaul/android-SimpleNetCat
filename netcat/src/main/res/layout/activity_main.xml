@@ -12,10 +12,4 @@
         tools:context="com.github.dddpaul.netcat.ui.MainActivity"
         />
 
-    <FrameLayout
-        android:id="@+id/fragment_netcat"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        />
-
 </RelativeLayout>

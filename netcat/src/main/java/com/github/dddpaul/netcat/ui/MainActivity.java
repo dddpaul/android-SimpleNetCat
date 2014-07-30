@@ -1,6 +1,7 @@
 package com.github.dddpaul.netcat.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -8,10 +9,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
@@ -43,16 +47,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        // Set up the action bar
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
-
         EventBus.getDefault().register( this );
 
         // Instantiate headless retained fragment for the first time init
         if( savedInstanceState == null ) {
             FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
-            trx.add( R.id.fragment_netcat, NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
+            trx.add( NetCatFragment.newInstance(), NETCAT_FRAGMENT_TAG );
             trx.commit();
         } else {
             actionsVisibility = savedInstanceState.getBooleanArray( ACTIONS_VISIBILITY_KEY );
@@ -65,17 +65,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Set up the ViewPager with the sections adapter
         pager = (ViewPager) findViewById( R.id.pager );
-        if( pager != null ) {
-            SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
-            pager.setAdapter( adapter );
-            pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
-            {
-                @Override
-                public void onPageSelected( int position )
-                {
-                    actionBar.setSelectedNavigationItem( position );
-                }
-            } );
+        SectionsPagerAdapter adapter = new SectionsPagerAdapter( this, getSupportFragmentManager() );
+        pager.setAdapter( adapter );
+
+        if( !isMultiPaneLayout() ) {
+            // Set up the action bar
+            final ActionBar actionBar = getSupportActionBar();
+            actionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
 
             // For each of the sections in the app, add a tab to the action bar
             for( int i = 0; i < adapter.getCount(); i++ ) {
@@ -85,6 +81,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                                 .setTabListener( this )
                 );
             }
+
+            pager.setOnPageChangeListener( new ViewPager.SimpleOnPageChangeListener()
+            {
+                @Override
+                public void onPageSelected( int position )
+                {
+                    actionBar.setSelectedNavigationItem( position );
+                }
+            } );
         }
     }
 
@@ -145,9 +150,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction )
     {
-        if( pager != null ) {
-            pager.setCurrentItem( tab.getPosition() );
-        }
+        pager.setCurrentItem( tab.getPosition() );
     }
 
     @Override
@@ -188,6 +191,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 break;
         }
         onPrepareOptionsMenu( menu );
+    }
+
+    public boolean isMultiPaneLayout()
+    {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float dpWidth  = metrics.widthPixels / metrics.density;
+        return dpWidth >= getResources().getInteger( R.integer.multi_pane_layout_width ) ;
     }
 
     private Intent getShareIntent( String text )

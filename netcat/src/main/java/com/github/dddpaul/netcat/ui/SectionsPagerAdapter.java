@@ -32,6 +32,23 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter
     }
 
     @Override
+    public float getPageWidth( int position )
+    {
+        if( activity.isMultiPaneLayout() ) {
+            switch( position ) {
+                case 0:
+                    return 0.4f;
+                case 1:
+                    return 0.6f;
+                default:
+                    return 1f;
+            }
+        } else {
+            return 1f;
+        }
+    }
+
+    @Override
     public int getCount()
     {
         return 2;
