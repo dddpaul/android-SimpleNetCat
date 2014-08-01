@@ -87,7 +87,6 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:textIsSelectable="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/tv_received_text"
