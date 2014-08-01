@@ -31,7 +31,6 @@
         android:layout_below="@+id/tv_text_to_send"
         android:layout_toLeftOf="@+id/b_send"
         android:layout_toStartOf="@+id/b_send"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:lines="4"
         android:minLines="1"
         android:maxLines="4"
