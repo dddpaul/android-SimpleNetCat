@@ -66,7 +66,6 @@ public class ResultFragment extends Fragment implements NetCatListener
     @Override
     public void onDestroy()
     {
-        Log.d( CLASS_NAME, "onDestroy() is called by fragment id=" + getId() );
         inputText.removeTextChangedListener( watcher );
         sendButton.setOnClickListener( null );
         EventBus.getDefault().unregister( this );
@@ -88,11 +87,7 @@ public class ResultFragment extends Fragment implements NetCatListener
         watcher = createTextWatcherAdapter();
         inputText.addTextChangedListener( watcher );
         if( savedInstanceState != null ) {
-            Log.d( CLASS_NAME, "onCreateView() is called by fragment id=" + getId() +
-                    ", savedText=" + savedInstanceState.getString( RECEIVED_TEXT_KEY, "" ));
             outputView.setText( savedInstanceState.getString( RECEIVED_TEXT_KEY, "" ));
-        } else {
-            outputView.setText( "aaa" );
         }
         return view;
     }
@@ -163,8 +158,6 @@ public class ResultFragment extends Fragment implements NetCatListener
      */
     public void onEvent( FragmentEvent event )
     {
-        // TODO: Sometimes after orientation change events are doubled
-        Log.d( CLASS_NAME, "Received " + event.op.toString() + " event by fragment id=" + getId() );
         switch( event.op ) {
             case CONNECT:
                 connect( event.data );
