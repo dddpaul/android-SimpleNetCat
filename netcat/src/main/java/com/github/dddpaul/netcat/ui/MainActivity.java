@@ -1,7 +1,6 @@
 package com.github.dddpaul.netcat.ui;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -9,13 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
@@ -97,11 +92,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onDestroy()
     {
         EventBus.getDefault().unregister( this );
-        if( pager != null ) {
-            pager.removeAllViews();
-            pager.setAdapter( null );
-            pager = null;
-        }
+        pager.removeAllViews();   // Prevent fragment leaking on 4.1.x,
+        pager.setAdapter( null ); // it's fixed in 4.3
         super.onDestroy();
     }
 
@@ -195,9 +187,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public boolean isMultiPaneLayout()
     {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        float dpWidth  = metrics.widthPixels / metrics.density;
-        return dpWidth >= getResources().getInteger( R.integer.multi_pane_layout_width ) ;
+        return getResources().getInteger( R.integer.multi_pane_layout ) == 1;
     }
 
     private Intent getShareIntent( String text )

@@ -2,5 +2,5 @@
 <resources>
     <integer name="main_fragment_position">0</integer>
     <integer name="result_fragment_position">1</integer>
-    <integer name="multi_pane_layout_width">500</integer>
+    <integer name="multi_pane_layout">0</integer>
 </resources>
