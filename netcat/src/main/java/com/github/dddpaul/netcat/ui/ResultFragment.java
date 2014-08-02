@@ -3,6 +3,7 @@ package com.github.dddpaul.netcat.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,7 @@ public class ResultFragment extends Fragment implements NetCatListener
         ButterKnife.inject( this, view );
         watcher = createTextWatcherAdapter();
         inputText.addTextChangedListener( watcher );
+        outputView.setMovementMethod( new ScrollingMovementMethod() );
         if( savedInstanceState != null ) {
             outputView.setText( savedInstanceState.getString( RECEIVED_TEXT_KEY, "" ));
         }
