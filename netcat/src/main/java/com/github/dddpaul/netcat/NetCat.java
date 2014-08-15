@@ -6,7 +6,7 @@ import android.util.Log;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -159,9 +159,7 @@ public class NetCat implements NetCater
                             }
                         }
                         if( task.isCancelled() ) {
-                            serverChannel.close();
-                            serverChannel = null;
-                            Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
+                            stopListening( port );
                             result.exception = new Exception( "Listening task is cancelled" );
                         }
                         break;
@@ -180,6 +178,9 @@ public class NetCat implements NetCater
                         }
                         break;
                     case DISCONNECT:
+                        if( serverChannel != null ) {
+                            stopListening( serverChannel.socket().getLocalPort() );
+                        }
                         if( socket != null && socket.isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Disconnecting from %s:%d",
                                     socket.getInetAddress().getHostAddress(), socket.getPort() ) );
@@ -238,11 +239,23 @@ public class NetCat implements NetCater
 
         private void transferStreams( BufferedReader reader, PrintWriter writer ) throws IOException
         {
-            String line;
-            while( ( line = reader.readLine() ) != null ) {
-                writer.println( line );
-                writer.flush();
+            try {
+                String line;
+                while( ( line = reader.readLine() ) != null ) {
+                    writer.println( line );
+                    writer.flush();
+                }
+            } catch( AsynchronousCloseException e ) {
+                // This exception is thrown when socket for receiver thread is closed by netcat
+                Log.w( CLASS_NAME, e.toString() );
             }
+        }
+
+        private void stopListening( int port ) throws IOException
+        {
+            Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
+            serverChannel.close();
+            serverChannel = null;
         }
     }
 }
