@@ -10,6 +10,7 @@ public interface NetCater
 {
     enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT_VIEW }
     enum State { IDLE, CONNECTED, LISTENING, OUTPUT_VIEW_CLEARED }
+    enum Proto { TCP, UDP }
 
     public void cancel();
     public void execute( String ... params );

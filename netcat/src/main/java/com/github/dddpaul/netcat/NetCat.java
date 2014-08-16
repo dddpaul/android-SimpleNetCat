@@ -128,19 +128,21 @@ public class NetCat implements NetCater
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
-                        port = Integer.parseInt( params[2] );
-                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
+                        Proto proto = Proto.valueOf( params[2] );
+                        port = Integer.parseInt( params[3] );
+                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (%s)", host, port, proto ) );
                         socket = new Socket();
                         socket.connect( new InetSocketAddress( host, port ), 3000 );
                         publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
                     case LISTEN:
-                        port = Integer.parseInt( params[1] );
+                        proto = Proto.valueOf( params[1] );
+                        port = Integer.parseInt( params[2] );
                         serverChannel = ServerSocketChannel.open();
                         serverChannel.configureBlocking( false );
                         serverChannel.socket().bind( new InetSocketAddress( port ) );
-                        Log.d( CLASS_NAME, String.format( "Listening on %d", port ) );
+                        Log.d( CLASS_NAME, String.format( "Listening on %d (%s)", port, proto ) );
                         publishProgress( LISTENING.toString() );
                         while( !task.isCancelled() ) {
                             SocketChannel channel = serverChannel.accept();

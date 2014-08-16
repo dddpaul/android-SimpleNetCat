@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.dddpaul.netcat.NetCater.*;
 import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
 import static com.github.dddpaul.netcat.NetCater.Op.DISCONNECT;
 import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
@@ -41,7 +42,7 @@ public class NetCatTest extends Assert implements NetCatListener
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     NetCater netCat;
-    NetCater.Result result;
+    Result result;
     CountDownLatch latch;
     Process process;
 
@@ -58,7 +59,24 @@ public class NetCatTest extends Assert implements NetCatListener
     }
 
     @Test
-    public void testConnect() throws InterruptedException, IOException
+    public void testTCPConnect() throws IOException, InterruptedException
+    {
+        startConnectTest( Proto.TCP );
+    }
+
+    @Test
+    public void testUDPConnect() throws IOException, InterruptedException
+    {
+        startConnectTest( Proto.UDP );
+    }
+
+    @Test
+    public void testTCPListen() throws IOException, InterruptedException
+    {
+        startListenTest( Proto.TCP );
+    }
+
+    public void startConnectTest( Proto proto ) throws InterruptedException, IOException
     {
         String port = "9998";
 
@@ -66,19 +84,21 @@ public class NetCatTest extends Assert implements NetCatListener
         List<String> nc = new ArrayList<>();
         nc.add( "nc" );
         nc.add( "-v" );
+        if( proto == Proto.UDP ) {
+            nc.add( "-u" );
+        }
         nc.add( "-l" );
         nc.add( port );
         process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
 
         // Execute connect operation after some delay
         Thread.sleep( 500 );
-        connect( port );
+        connect( proto, port );
 
-        testNetCatOperations();
+        executeNetCatOperations();
     }
 
-    @Test
-    public void testListen() throws InterruptedException, IOException
+    public void startListenTest( Proto proto ) throws InterruptedException, IOException
     {
         String port = "9997";
 
@@ -86,6 +106,9 @@ public class NetCatTest extends Assert implements NetCatListener
         final List<String> nc = new ArrayList<>();
         nc.add( "nc" );
         nc.add( "-v" );
+        if( proto == Proto.UDP ) {
+            nc.add( "-u" );
+        }
         nc.add( HOST );
         nc.add( port );
         new Thread( new Runnable()
@@ -103,9 +126,9 @@ public class NetCatTest extends Assert implements NetCatListener
         } ).start();
 
         // Start NetCat listener
-        listen( port );
+        listen( proto, port );
 
-        testNetCatOperations();
+        executeNetCatOperations();
     }
 
     @Override
@@ -115,23 +138,23 @@ public class NetCatTest extends Assert implements NetCatListener
     }
 
     @Override
-    public void netCatIsCompleted( NetCater.Result result )
+    public void netCatIsCompleted( Result result )
     {
         this.result = result;
         latch.countDown();
     }
 
     @Override
-    public void netCatIsFailed( NetCater.Result result )
+    public void netCatIsFailed( Result result )
     {
         this.result = result;
         Log.e( CLASS_NAME, result.getErrorMessage() );
         latch.countDown();
     }
 
-    public Socket connect( String port ) throws InterruptedException
+    public Socket connect( Proto proto, String port ) throws InterruptedException
     {
-        netCat.execute( CONNECT.toString(), HOST, port );
+        netCat.execute( CONNECT.toString(), proto.toString(), HOST, port );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -141,9 +164,9 @@ public class NetCatTest extends Assert implements NetCatListener
         return result.getSocket();
     }
 
-    public Socket listen( String port ) throws InterruptedException
+    public Socket listen( Proto proto, String port ) throws InterruptedException
     {
-        netCat.execute( LISTEN.toString(), port );
+        netCat.execute( LISTEN.toString(), proto.toString(), port );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -163,7 +186,7 @@ public class NetCatTest extends Assert implements NetCatListener
         assertThat( result.op, is( DISCONNECT ));
     }
 
-    public void testNetCatOperations() throws InterruptedException, IOException
+    public void executeNetCatOperations() throws InterruptedException, IOException
     {
         // Send string to external nc process
         netCat.setInput( new ByteArrayInputStream( INPUT_TEST.getBytes() ));
