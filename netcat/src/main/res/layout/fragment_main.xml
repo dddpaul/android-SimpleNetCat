@@ -93,4 +93,17 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         />
 
+    <!-- TCP/UDP switch -->
+    <CheckBox
+        android:id="@+id/c_tcp_udp"
+        android:text="@string/label_tcp_udp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/et_listen_on"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        />
+
 </RelativeLayout>

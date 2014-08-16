@@ -127,8 +127,8 @@ public class NetCat implements NetCater
                 int port;
                 switch( op ) {
                     case CONNECT:
-                        String host = params[1];
-                        Proto proto = Proto.valueOf( params[2] );
+                        Proto proto = Proto.valueOf( params[1] );
+                        String host = params[2];
                         port = Integer.parseInt( params[3] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (%s)", host, port, proto ) );
                         socket = new Socket();
