@@ -77,12 +77,14 @@ public class NetCatTest extends Assert implements NetCatListener
     public void testUDPConnect() throws IOException, InterruptedException
     {
         inputFromTest = inputFromTest + "\n";
+        inputFromProcess = inputFromProcess + "\n";
         startConnectTest( Proto.UDP );
     }
 
     @Test
     public void testUDPListen() throws IOException, InterruptedException
     {
+        inputFromTest = inputFromTest + "\n";
         inputFromProcess = inputFromProcess + "\n";
         startListenTest( Proto.UDP );
     }

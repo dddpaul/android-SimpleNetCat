@@ -196,27 +196,30 @@ public class NetCat implements NetCater
                         break;
                     case RECEIVE:
                         if( isConnected() && socket instanceof Socket ) {
-                            Log.d( CLASS_NAME, String.format( "Receiving from %s", getSocketString( socket )));
+                            Log.d( CLASS_NAME, String.format( "Receiving from %s", getSocketRemoteString( socket )));
                             receiveFromSocket( (Socket) socket );
                         }
                         if( isListening() && socket instanceof DatagramSocket ) {
-                            Log.d( CLASS_NAME, String.format( "Receiving on %d (UDP)", ( (DatagramSocket) socket ).getLocalPort() ));
-                            receiveFromDatagramSocket( (DatagramSocket) socket );
+                            // Connect after receive is necessary for further sending
+                            DatagramPacket packet = receiveFromDatagramSocket( (DatagramSocket) socket );
+                            Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", packet.getSocketAddress() ) );
+                            ( (DatagramSocket) socket ).connect( packet.getSocketAddress() );
+                            Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", packet.getSocketAddress() ) );
                         }
                         break;
                     case SEND:
-                        if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Sending to %s", getSocketString( socket )));
-                            if( socket instanceof Socket ) {
-                                sendToSocket( (Socket) socket );
-                            } else {
-                                sendToDatagramSocket( (DatagramSocket) socket );
-                            }
+                        if( isConnected() && socket instanceof Socket ) {
+                            Log.d( CLASS_NAME, String.format( "Sending to %s", getSocketRemoteString( socket ) ) );
+                            sendToSocket( (Socket) socket );
+                        }
+                        if( isListening() && socket instanceof DatagramSocket ) {
+                            Log.d( CLASS_NAME, String.format( "Sending on %d (UDP)", ( (DatagramSocket) socket ).getLocalPort() ) );
+                            sendToDatagramSocket( (DatagramSocket) socket );
                         }
                         break;
                     case DISCONNECT:
                         if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s", getSocketString( socket )));
+                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s", getSocketRemoteString( socket )));
                             if( socket instanceof Socket ) {
                                 ( (Socket) socket).shutdownOutput();
                             }
@@ -265,7 +268,7 @@ public class NetCat implements NetCater
             listener.netCatIsFailed( result );
         }
 
-        private void receiveFromSocket( Socket socket) throws IOException
+        private void receiveFromSocket( Socket socket ) throws IOException
         {
             BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
             PrintWriter writer = new PrintWriter( output );
@@ -293,22 +296,23 @@ public class NetCat implements NetCater
             }
         }
 
-        private void receiveFromDatagramSocket( DatagramSocket socket ) throws IOException
+        private DatagramPacket receiveFromDatagramSocket( DatagramSocket socket ) throws IOException
         {
             byte[] buf = new byte[1024];
             DatagramPacket packet = new DatagramPacket( buf, buf.length );
             socket.receive( packet );
             output.write( packet.getData(), 0, packet.getLength() );
+            return packet;
         }
 
         private void sendToDatagramSocket( DatagramSocket socket ) throws IOException
         {
-            BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
-            char[] buf = new char[1024];
-            reader.read( buf, 0, 1024 );
-            String line = new String( buf );
-            DatagramPacket packet = new DatagramPacket( line.getBytes(), line.length() );
-            socket.send( packet );
+            byte[] buf = new byte[1024];
+            int bytesRead = input.read( buf, 0, buf.length );
+            if( bytesRead > 0 ) {
+                DatagramPacket packet = new DatagramPacket( buf, bytesRead );
+                socket.send( packet );
+            }
         }
 
         private void stopListening() throws IOException
@@ -326,7 +330,7 @@ public class NetCat implements NetCater
             socket = null;
         }
 
-        private String getSocketString( Closeable socket )
+        private String getSocketRemoteString( Closeable socket )
         {
             if( socket instanceof Socket ) {
                 Socket tcpSocket = (Socket) socket;
