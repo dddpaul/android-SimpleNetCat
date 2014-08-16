@@ -222,8 +222,10 @@ public class NetCat implements NetCater
                             Log.d( CLASS_NAME, String.format( "Disconnecting from %s", getSocketRemoteString( socket )));
                             if( socket instanceof Socket ) {
                                 ( (Socket) socket).shutdownOutput();
+                                ( (Socket) socket).close();
+                            } else {
+                                ( (DatagramSocket) socket).close();
                             }
-                            socket.close();
                             socket = null;
                             publishProgress( IDLE.toString() );
                         }

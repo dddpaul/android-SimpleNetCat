@@ -16,7 +16,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.github.dddpaul.netcat.Constants;
-import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
@@ -48,7 +47,7 @@ public class MainFragment extends Fragment
     protected Button listenButton;
 
     @InjectView( R.id.c_tcp_udp )
-    protected CheckBox tcpUdpCheckbox;
+    protected CheckBox udpCheckbox;
 
     private SharedPreferences prefs;
     private Set<String> connectToSet;
@@ -99,7 +98,7 @@ public class MainFragment extends Fragment
         editor.putStringSet( Constants.CONNECT_TO_SET_KEY, connectToSet );
         editor.apply();
 
-        Proto proto = tcpUdpCheckbox.isChecked() ? Proto.TCP : Proto.UDP;
+        Proto proto = udpCheckbox.isChecked() ? Proto.UDP : Proto.TCP;
         connectTo = proto + ":" + connectTo;
         EventBus.getDefault().post( new FragmentEvent( CONNECT, connectTo ) );
     }
@@ -107,7 +106,7 @@ public class MainFragment extends Fragment
     @OnClick( R.id.b_listen )
     protected void onListenButtonClick()
     {
-        Proto proto = tcpUdpCheckbox.isChecked() ? Proto.TCP : Proto.UDP;
+        Proto proto = udpCheckbox.isChecked() ? Proto.UDP : Proto.TCP;
         String listenOn = proto + ":" + listenOnText.getText().toString();
         EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOn ) );
     }
