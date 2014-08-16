@@ -267,11 +267,10 @@ public class NetCat implements NetCater
 
         private void receiveFromDatagramSocket( DatagramSocket socket ) throws IOException
         {
-            PrintWriter writer = new PrintWriter( output );
             byte[] buf = new byte[1024];
             DatagramPacket packet = new DatagramPacket( buf, buf.length );
             socket.receive( packet );
-            writer.println( new String( packet.getData() ));
+            output.write( packet.getData(), 0, packet.getLength() );
         }
 
         private void sendToDatagramSocket( DatagramSocket socket ) throws IOException

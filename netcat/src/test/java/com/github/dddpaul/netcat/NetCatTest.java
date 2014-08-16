@@ -208,6 +208,8 @@ public class NetCatTest extends Assert implements NetCatListener
         } while( !INPUT_TEST.equals( line ));
 
         // Send string from external nc process
+        process.getOutputStream().write( INPUT_NC.getBytes() );
+        process.getOutputStream().flush();
         new Thread( new Runnable()
         {
             @Override
@@ -215,8 +217,6 @@ public class NetCatTest extends Assert implements NetCatListener
             {
                 try {
                     Thread.sleep( 500 );
-                    process.getOutputStream().write( INPUT_NC.getBytes() );
-                    process.getOutputStream().flush();
                 } catch( Exception e ) {
                     e.printStackTrace();
                 }
@@ -231,7 +231,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         assertNotNull( result );
         assertThat( result.op, is( RECEIVE ));
-        line = netCat.getOutput().toString().trim();
+        line = netCat.getOutput().toString();
         Log.i( CLASS_NAME, line  );
         assertThat( line, is( INPUT_NC ));
         disconnect();
