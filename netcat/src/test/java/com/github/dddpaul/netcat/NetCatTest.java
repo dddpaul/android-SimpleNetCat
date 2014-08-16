@@ -5,6 +5,7 @@ package com.github.dddpaul.netcat;
 
 import android.util.Log;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -61,6 +62,13 @@ public class NetCatTest extends Assert implements NetCatListener
         inputFromProcess = INPUT_NC;
     }
 
+    @After
+    public void tearDown() throws InterruptedException
+    {
+        disconnect();
+        process.destroy();
+    }
+
     @Test
     public void testTCPConnect() throws IOException, InterruptedException
     {
@@ -110,7 +118,6 @@ public class NetCatTest extends Assert implements NetCatListener
 
         send();
         receive();
-        disconnect();
     }
 
     public void startListenTest( Proto proto ) throws InterruptedException, IOException
@@ -151,7 +158,6 @@ public class NetCatTest extends Assert implements NetCatListener
             receive();
             send();
         }
-        disconnect();
     }
 
     @Override
@@ -243,21 +249,7 @@ public class NetCatTest extends Assert implements NetCatListener
         // Send string from external nc process
         process.getOutputStream().write( inputFromProcess.getBytes() );
         process.getOutputStream().flush();
-/*
-        new Thread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    Thread.sleep( 500 );
-                } catch( Exception e ) {
-                    e.printStackTrace();
-                }
-                process.destroy();
-            }
-        }).start();
-*/
+        process.getOutputStream().close();
 
         // Receive string from external nc process
         netCat.createOutput();
