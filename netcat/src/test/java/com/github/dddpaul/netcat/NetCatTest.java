@@ -45,7 +45,7 @@ public class NetCatTest extends Assert implements NetCatListener
     Result result;
     CountDownLatch latch;
     Process process;
-    String inputText;
+    String inputFromTest, inputFromProcess;
 
     @BeforeClass
     public static void init()
@@ -57,7 +57,8 @@ public class NetCatTest extends Assert implements NetCatListener
     public void setUp() throws Exception
     {
         netCat = new NetCat( this );
-        inputText = INPUT_TEST;
+        inputFromTest = INPUT_TEST;
+        inputFromProcess = INPUT_NC;
     }
 
     @Test
@@ -75,14 +76,14 @@ public class NetCatTest extends Assert implements NetCatListener
     @Test
     public void testUDPConnect() throws IOException, InterruptedException
     {
-        inputText = inputText + "\n";
+        inputFromTest = inputFromTest + "\n";
         startConnectTest( Proto.UDP );
     }
 
     @Test
     public void testUDPListen() throws IOException, InterruptedException
     {
-        inputText = inputText + "\n";
+        inputFromProcess = inputFromProcess + "\n";
         startListenTest( Proto.UDP );
     }
 
@@ -209,7 +210,7 @@ public class NetCatTest extends Assert implements NetCatListener
     public void send() throws InterruptedException, IOException
     {
         // Send string to external nc process
-        netCat.setInput( new ByteArrayInputStream( inputText.getBytes() ) );
+        netCat.setInput( new ByteArrayInputStream( inputFromTest.getBytes() ) );
         netCat.execute( SEND.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
@@ -238,8 +239,9 @@ public class NetCatTest extends Assert implements NetCatListener
         }
 
         // Send string from external nc process
-        process.getOutputStream().write( INPUT_NC.getBytes() );
+        process.getOutputStream().write( inputFromProcess.getBytes() );
         process.getOutputStream().flush();
+/*
         new Thread( new Runnable()
         {
             @Override
@@ -253,6 +255,7 @@ public class NetCatTest extends Assert implements NetCatListener
                 process.destroy();
             }
         }).start();
+*/
 
         // Receive string from external nc process
         netCat.createOutput();

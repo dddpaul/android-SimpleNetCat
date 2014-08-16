@@ -112,6 +112,18 @@ public class NetCat implements NetCater
         task.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, params );
     }
 
+    /**
+     * If isListening = true, then isConnected() = true/false
+     */
+    @Override
+    public boolean isListening()
+    {
+        return serverChannel != null || (( socket instanceof DatagramSocket) && ((DatagramSocket) socket).isBound() );
+    }
+
+    /**
+     * If isConnected = true, then isListening() = true
+     */
     @Override
     public boolean isConnected()
     {
@@ -120,12 +132,6 @@ public class NetCat implements NetCater
             if( socket instanceof DatagramSocket ) return ( (DatagramSocket) socket ).isConnected();
         }
         return false;
-    }
-
-    @Override
-    public boolean isListening()
-    {
-        return serverChannel != null;
     }
 
     public class NetCatTask extends AsyncTask<String, String, Result>
@@ -180,7 +186,7 @@ public class NetCat implements NetCater
                                 }
                             }
                             if( task.isCancelled() ) {
-                                stopListening( port );
+                                stopListening();
                                 result.exception = new Exception( "Listening task is cancelled" );
                             }
                         } else if( proto == Proto.UDP ) {
@@ -189,13 +195,13 @@ public class NetCat implements NetCater
                         }
                         break;
                     case RECEIVE:
-                        if( isConnected() ) {
+                        if( isConnected() && socket instanceof Socket ) {
                             Log.d( CLASS_NAME, String.format( "Receiving from %s", getSocketString( socket )));
-                            if( socket instanceof Socket ) {
-                                receiveFromSocket( (Socket) socket );
-                            } else {
-                                receiveFromDatagramSocket( (DatagramSocket) socket );
-                            }
+                            receiveFromSocket( (Socket) socket );
+                        }
+                        if( isListening() && socket instanceof DatagramSocket ) {
+                            Log.d( CLASS_NAME, String.format( "Receiving on %d (UDP)", ( (DatagramSocket) socket ).getLocalPort() ));
+                            receiveFromDatagramSocket( (DatagramSocket) socket );
                         }
                         break;
                     case SEND:
@@ -209,9 +215,6 @@ public class NetCat implements NetCater
                         }
                         break;
                     case DISCONNECT:
-                        if( serverChannel != null ) {
-                            stopListening( serverChannel.socket().getLocalPort() );
-                        }
                         if( isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Disconnecting from %s", getSocketString( socket )));
                             if( socket instanceof Socket ) {
@@ -220,6 +223,13 @@ public class NetCat implements NetCater
                             socket.close();
                             socket = null;
                             publishProgress( IDLE.toString() );
+                        }
+                        if( isListening() ) {
+                            if( serverChannel != null ) {
+                                stopListening();
+                            } else {
+                                stopDatagramListening();
+                            }
                         }
                 }
             } catch( Exception e ) {
@@ -301,11 +311,19 @@ public class NetCat implements NetCater
             socket.send( packet );
         }
 
-        private void stopListening( int port ) throws IOException
+        private void stopListening() throws IOException
         {
-            Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
+            Log.d( CLASS_NAME, String.format( "Stop listening on %d (TCP)", serverChannel.socket().getLocalPort() ) );
             serverChannel.close();
             serverChannel = null;
+        }
+
+        private void stopDatagramListening() throws IOException
+        {
+            DatagramSocket udpSocket = ( (DatagramSocket) socket );
+            Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", udpSocket.getLocalPort() ) );
+            socket.close();
+            socket = null;
         }
 
         private String getSocketString( Closeable socket )
