@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.github.dddpaul.netcat.Constants;
+import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.R;
 import com.github.dddpaul.netcat.Utils;
 
@@ -29,6 +31,7 @@ import de.greenrobot.event.EventBus;
 import events.FragmentEvent;
 
 import static com.github.dddpaul.netcat.NetCater.Op.*;
+import static com.github.dddpaul.netcat.NetCater.Proto;
 
 public class MainFragment extends Fragment
 {
@@ -43,6 +46,9 @@ public class MainFragment extends Fragment
 
     @InjectView( R.id.b_listen )
     protected Button listenButton;
+
+    @InjectView( R.id.c_tcp_udp )
+    protected CheckBox tcpUdpCheckbox;
 
     private SharedPreferences prefs;
     private Set<String> connectToSet;
@@ -93,13 +99,17 @@ public class MainFragment extends Fragment
         editor.putStringSet( Constants.CONNECT_TO_SET_KEY, connectToSet );
         editor.apply();
 
+        Proto proto = tcpUdpCheckbox.isChecked() ? Proto.TCP : Proto.UDP;
+        connectTo = proto + ":" + connectTo;
         EventBus.getDefault().post( new FragmentEvent( CONNECT, connectTo ) );
     }
 
     @OnClick( R.id.b_listen )
     protected void onListenButtonClick()
     {
-        EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOnText.getText().toString() ) );
+        Proto proto = tcpUdpCheckbox.isChecked() ? Proto.TCP : Proto.UDP;
+        String listenOn = proto + ":" + listenOnText.getText().toString();
+        EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOn ) );
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,8 +121,6 @@ public class ResultFragment extends Fragment implements NetCatListener
         switch( result.op ) {
             case CONNECT:
             case LISTEN:
-                Socket socket = result.getSocket();
-                netCat.setSocket( socket );
                 netCat.createOutput();
                 netCat.executeParallel( RECEIVE.toString() );
                 EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
@@ -194,25 +193,26 @@ public class ResultFragment extends Fragment implements NetCatListener
             Toast.makeText( getActivity(), getString( R.string.error_disconnect_first ), Toast.LENGTH_LONG ).show();
             return;
         }
-        if( !connectTo.matches( "[\\w\\.]+:\\d+" ) ) {
+        if( !connectTo.matches( "(TCP|UDP):[\\w\\.]+:\\d+" ) ) {
             Toast.makeText( getActivity(), getString( R.string.error_host_port_format ), Toast.LENGTH_LONG ).show();
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat.execute( CONNECT.toString(), tokens[0], tokens[1] );
+        netCat.execute( CONNECT.toString(), tokens[0], tokens[1], tokens[2] );
     }
 
-    public void listen( String port )
+    public void listen( String listenOn )
     {
         if( Utils.isActive( netCat )) {
             Toast.makeText( getActivity(), getString( R.string.error_disconnect_first ), Toast.LENGTH_LONG ).show();
             return;
         }
-        if( !port.matches( "\\d+" ) ) {
+        if( !listenOn.matches( "(TCP|UDP):\\d+" ) ) {
             Toast.makeText( getActivity(), getString( R.string.error_port_format ), Toast.LENGTH_LONG ).show();
             return;
         }
-        netCat.execute( LISTEN.toString(), port );
+        String[] tokens = listenOn.split( ":" );
+        netCat.execute( LISTEN.toString(), tokens[0], tokens[1] );
     }
 
     private void send()
