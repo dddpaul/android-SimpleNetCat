@@ -22,6 +22,7 @@ public interface NetCater
     public void createOutput();
     public void closeOutput();
     public OutputStream getOutput();
+    public String getOutputString();
     public boolean isConnected();
     public boolean isListening();
 

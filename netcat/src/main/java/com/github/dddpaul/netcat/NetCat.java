@@ -77,6 +77,19 @@ public class NetCat implements NetCater
         return output;
     }
 
+    /**
+     * Strip last CR+LF
+     */
+    @Override
+    public String getOutputString()
+    {
+        String s = output.toString();
+        if( s.endsWith( "\n" )) {
+            s = s.substring( 0, s.length() - 1 );
+        }
+        return s;
+    }
+
     @Override
     public void cancel()
     {

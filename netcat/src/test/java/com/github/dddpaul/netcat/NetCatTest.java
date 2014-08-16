@@ -231,7 +231,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         assertNotNull( result );
         assertThat( result.op, is( RECEIVE ));
-        line = netCat.getOutput().toString();
+        line = netCat.getOutputString();
         Log.i( CLASS_NAME, line  );
         assertThat( line, is( INPUT_NC ));
         disconnect();
