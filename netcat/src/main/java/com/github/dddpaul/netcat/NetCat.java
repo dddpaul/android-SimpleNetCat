@@ -219,7 +219,6 @@ public class NetCat implements NetCater
         @Override
         protected void onCancelled( Result result )
         {
-            EventBus.getDefault().post( new ActivityEvent( IDLE ) );
             listener.netCatIsFailed( result );
         }
 

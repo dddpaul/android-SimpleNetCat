@@ -151,6 +151,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     @Override
     public void netCatIsFailed( Result result )
     {
+        EventBus.getDefault().post( new ActivityEvent( IDLE, outputView.getText().toString() ) );
         Toast.makeText( getActivity(), result.getErrorMessage(), Toast.LENGTH_LONG ).show();
     }
 
