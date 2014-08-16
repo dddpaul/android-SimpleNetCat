@@ -72,8 +72,7 @@ public class NetCatTest extends Assert implements NetCatListener
 
         // Execute connect operation after some delay
         Thread.sleep( 500 );
-        Socket socket = connect( port );
-        netCat.setSocket( socket );
+        connect( port );
 
         testNetCatOperations();
     }
@@ -104,8 +103,7 @@ public class NetCatTest extends Assert implements NetCatListener
         } ).start();
 
         // Start NetCat listener
-        Socket socket = listen( port );
-        netCat.setSocket( socket );
+        listen( port );
 
         testNetCatOperations();
     }

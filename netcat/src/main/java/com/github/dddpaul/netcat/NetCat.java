@@ -46,12 +46,6 @@ public class NetCat implements NetCater
     }
 
     @Override
-    public void setSocket( Socket socket )
-    {
-        this.socket = socket;
-    }
-
-    @Override
     public void setInput( InputStream input )
     {
         this.input = input;
@@ -131,16 +125,15 @@ public class NetCat implements NetCater
             try {
                 Log.d( CLASS_NAME, String.format( "Executing %s operation", op ) );
                 int port;
-                Socket newSocket;
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
                         port = Integer.parseInt( params[2] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d", host, port ) );
-                        newSocket = new Socket();
-                        newSocket.connect( new InetSocketAddress( host, port ), 3000 );
+                        socket = new Socket();
+                        socket.connect( new InetSocketAddress( host, port ), 3000 );
                         publishProgress( CONNECTED.toString() );
-                        result.object = newSocket;
+                        result.object = socket;
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
@@ -153,6 +146,7 @@ public class NetCat implements NetCater
                             SocketChannel channel = serverChannel.accept();
                             Thread.sleep( 100 );
                             if( channel != null ) {
+                                socket = channel.socket();
                                 result.object = channel.socket();
                                 publishProgress( CONNECTED.toString() );
                                 break;

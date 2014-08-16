@@ -120,8 +120,6 @@ public class ResultFragment extends Fragment implements NetCatListener
         switch( result.op ) {
             case CONNECT:
             case LISTEN:
-                Socket socket = result.getSocket();
-                netCat.setSocket( socket );
                 netCat.createOutput();
                 netCat.executeParallel( RECEIVE.toString() );
                 EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
