@@ -153,7 +153,7 @@ public class NetCat implements NetCater
                         if( proto == Proto.TCP ) {
                             socket = new Socket();
                             ( (Socket) socket).connect( new InetSocketAddress( host, port ), 3000 );
-                        } else {
+                        } else if( proto == Proto.UDP ) {
                             socket = new DatagramSocket();
                             ( (DatagramSocket) socket).connect( new InetSocketAddress( host, port ) );
                         }
@@ -163,24 +163,29 @@ public class NetCat implements NetCater
                     case LISTEN:
                         proto = Proto.valueOf( params[1] );
                         port = Integer.parseInt( params[2] );
-                        serverChannel = ServerSocketChannel.open();
-                        serverChannel.configureBlocking( false );
-                        serverChannel.socket().bind( new InetSocketAddress( port ) );
                         Log.d( CLASS_NAME, String.format( "Listening on %d (%s)", port, proto ) );
-                        publishProgress( LISTENING.toString() );
-                        while( !task.isCancelled() ) {
-                            SocketChannel channel = serverChannel.accept();
-                            Thread.sleep( 100 );
-                            if( channel != null ) {
-                                socket = channel.socket();
-                                result.object = channel.socket();
-                                publishProgress( CONNECTED.toString() );
-                                break;
+                        if( proto == Proto.TCP ) {
+                            serverChannel = ServerSocketChannel.open();
+                            serverChannel.configureBlocking( false );
+                            serverChannel.socket().bind( new InetSocketAddress( port ) );
+                            publishProgress( LISTENING.toString() );
+                            while( !task.isCancelled() ) {
+                                SocketChannel channel = serverChannel.accept();
+                                Thread.sleep( 100 );
+                                if( channel != null ) {
+                                    socket = channel.socket();
+                                    result.object = socket;
+                                    publishProgress( CONNECTED.toString() );
+                                    break;
+                                }
                             }
-                        }
-                        if( task.isCancelled() ) {
-                            stopListening( port );
-                            result.exception = new Exception( "Listening task is cancelled" );
+                            if( task.isCancelled() ) {
+                                stopListening( port );
+                                result.exception = new Exception( "Listening task is cancelled" );
+                            }
+                        } else if( proto == Proto.UDP ) {
+                            socket = new DatagramSocket( port );
+                            result.object = socket;
                         }
                         break;
                     case RECEIVE:

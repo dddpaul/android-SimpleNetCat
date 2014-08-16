@@ -67,6 +67,12 @@ public class NetCatTest extends Assert implements NetCatListener
     }
 
     @Test
+    public void testTCPListen() throws IOException, InterruptedException
+    {
+        startListenTest( Proto.TCP );
+    }
+
+    @Test
     public void testUDPConnect() throws IOException, InterruptedException
     {
         inputText = inputText + "\n";
@@ -74,9 +80,10 @@ public class NetCatTest extends Assert implements NetCatListener
     }
 
     @Test
-    public void testTCPListen() throws IOException, InterruptedException
+    public void testUDPListen() throws IOException, InterruptedException
     {
-        startListenTest( Proto.TCP );
+        inputText = inputText + "\n";
+        startListenTest( Proto.UDP );
     }
 
     public void startConnectTest( Proto proto ) throws InterruptedException, IOException
@@ -98,7 +105,9 @@ public class NetCatTest extends Assert implements NetCatListener
         Thread.sleep( 500 );
         connect( proto, port );
 
-        executeNetCatOperations();
+        send();
+        receive();
+        disconnect();
     }
 
     public void startListenTest( Proto proto ) throws InterruptedException, IOException
@@ -131,7 +140,15 @@ public class NetCatTest extends Assert implements NetCatListener
         // Start NetCat listener
         listen( proto, port );
 
-        executeNetCatOperations();
+        if( proto == Proto.TCP ) {
+            send();
+            receive();
+        } else {
+            // UDP listener must wait for receive to move into connected state then send
+            receive();
+            send();
+        }
+        disconnect();
     }
 
     @Override
@@ -189,23 +206,36 @@ public class NetCatTest extends Assert implements NetCatListener
         assertThat( result.op, is( DISCONNECT ));
     }
 
-    public void executeNetCatOperations() throws InterruptedException, IOException
+    public void send() throws InterruptedException, IOException
     {
         // Send string to external nc process
-        netCat.setInput( new ByteArrayInputStream( inputText.getBytes() ));
+        netCat.setInput( new ByteArrayInputStream( inputText.getBytes() ) );
         netCat.execute( SEND.toString() );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
         assertEquals( SEND, result.op );
 
+        // Wait till nc process will be started definitely
+        while( process == null ) {
+            Thread.sleep( 100 );
+        }
+
         // Get received string by external nc process
-        BufferedReader b = new BufferedReader( new InputStreamReader( process.getInputStream() ));
+        BufferedReader b = new BufferedReader( new InputStreamReader( process.getInputStream() ) );
         String line;
         do {
             line = b.readLine();
-            Log.i( CLASS_NAME, line  );
-        } while( !INPUT_TEST.equals( line ));
+            Log.i( CLASS_NAME, line );
+        } while( !INPUT_TEST.equals( line ) );
+    }
+
+    public void receive() throws IOException, InterruptedException
+    {
+        // Wait till nc process will be started definitely
+        while( process == null ) {
+            Thread.sleep( 100 );
+        }
 
         // Send string from external nc process
         process.getOutputStream().write( INPUT_NC.getBytes() );
@@ -231,9 +261,8 @@ public class NetCatTest extends Assert implements NetCatListener
 
         assertNotNull( result );
         assertThat( result.op, is( RECEIVE ));
-        line = netCat.getOutputString();
+        String line = netCat.getOutputString();
         Log.i( CLASS_NAME, line  );
         assertThat( line, is( INPUT_NC ));
-        disconnect();
     }
 }
