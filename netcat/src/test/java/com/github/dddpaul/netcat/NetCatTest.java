@@ -57,7 +57,7 @@ public class NetCatTest extends Assert implements NetCatListener
         netCat = new NetCat( this );
     }
 
-//    @Test
+    @Test
     public void testConnect() throws InterruptedException, IOException
     {
         String port = "9998";
