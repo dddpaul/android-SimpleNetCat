@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.AsynchronousCloseException;
@@ -24,7 +26,7 @@ public class NetCat implements NetCater
     private NetCatTask task;
     private NetCatListener listener;
     private ServerSocketChannel serverChannel;
-    private Socket socket;
+    private Closeable socket;
     private InputStream input;
     private OutputStream output;
 
@@ -100,7 +102,11 @@ public class NetCat implements NetCater
     @Override
     public boolean isConnected()
     {
-        return socket != null && socket.isConnected();
+        if( socket != null ) {
+            if( socket instanceof Socket ) return ( (Socket) socket ).isConnected();
+            if( socket instanceof DatagramSocket ) return ( (DatagramSocket) socket ).isConnected();
+        }
+        return false;
     }
 
     @Override
@@ -131,8 +137,13 @@ public class NetCat implements NetCater
                         String host = params[2];
                         port = Integer.parseInt( params[3] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (%s)", host, port, proto ) );
-                        socket = new Socket();
-                        socket.connect( new InetSocketAddress( host, port ), 3000 );
+                        if( proto == Proto.TCP ) {
+                            socket = new Socket();
+                            ( (Socket) socket).connect( new InetSocketAddress( host, port ), 3000 );
+                        } else {
+                            socket = new DatagramSocket();
+                            ( (DatagramSocket) socket).connect( new InetSocketAddress( host, port ) );
+                        }
                         publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
@@ -160,27 +171,34 @@ public class NetCat implements NetCater
                         }
                         break;
                     case RECEIVE:
-                        if( socket != null && socket.isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Receiving from %s:%d",
-                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
-                            receiveFromSocket();
+                        if( isConnected() ) {
+                            Log.d( CLASS_NAME, String.format( "Receiving from %s", getSocketString( socket )));
+                            if( socket instanceof Socket ) {
+                                receiveFromSocket( (Socket) socket );
+                            } else {
+                                receiveFromDatagramSocket( (DatagramSocket) socket );
+                            }
                         }
                         break;
                     case SEND:
-                        if( socket != null && socket.isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Sending to %s:%d",
-                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
-                            sendToSocket();
+                        if( isConnected() ) {
+                            Log.d( CLASS_NAME, String.format( "Sending to %s", getSocketString( socket )));
+                            if( socket instanceof Socket ) {
+                                sendToSocket( (Socket) socket );
+                            } else {
+                                sendToDatagramSocket( (DatagramSocket) socket );
+                            }
                         }
                         break;
                     case DISCONNECT:
                         if( serverChannel != null ) {
                             stopListening( serverChannel.socket().getLocalPort() );
                         }
-                        if( socket != null && socket.isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s:%d",
-                                    socket.getInetAddress().getHostAddress(), socket.getPort() ) );
-                            socket.shutdownOutput();
+                        if( isConnected() ) {
+                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s", getSocketString( socket )));
+                            if( socket instanceof Socket ) {
+                                ( (Socket) socket).shutdownOutput();
+                            }
                             socket.close();
                             socket = null;
                             publishProgress( IDLE.toString() );
@@ -219,14 +237,14 @@ public class NetCat implements NetCater
             listener.netCatIsFailed( result );
         }
 
-        private void receiveFromSocket() throws IOException
+        private void receiveFromSocket( Socket socket) throws IOException
         {
             BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
             PrintWriter writer = new PrintWriter( output );
             transferStreams( reader, writer );
         }
 
-        private void sendToSocket() throws IOException
+        private void sendToSocket( Socket socket ) throws IOException
         {
             BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
             PrintWriter writer = new PrintWriter( socket.getOutputStream() );
@@ -247,11 +265,45 @@ public class NetCat implements NetCater
             }
         }
 
+        private void receiveFromDatagramSocket( DatagramSocket socket ) throws IOException
+        {
+            PrintWriter writer = new PrintWriter( output );
+            byte[] buf = new byte[1024];
+            DatagramPacket packet = new DatagramPacket( buf, buf.length );
+            socket.receive( packet );
+            writer.println( new String( packet.getData() ));
+        }
+
+        private void sendToDatagramSocket( DatagramSocket socket ) throws IOException
+        {
+            BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
+            char[] buf = new char[1024];
+            reader.read( buf, 0, 1024 );
+            String line = new String( buf );
+            DatagramPacket packet = new DatagramPacket( line.getBytes(), line.length() );
+            socket.send( packet );
+        }
+
         private void stopListening( int port ) throws IOException
         {
             Log.d( CLASS_NAME, String.format( "Stop listening on %d", port ) );
             serverChannel.close();
             serverChannel = null;
+        }
+
+        private String getSocketString( Closeable socket )
+        {
+            if( socket instanceof Socket ) {
+                Socket tcpSocket = (Socket) socket;
+                return tcpSocket.getInetAddress().getHostAddress() + ":" + tcpSocket.getPort();
+
+            }
+            if( socket instanceof DatagramSocket ) {
+                DatagramSocket udpSocket = (DatagramSocket) socket;
+                return udpSocket.getInetAddress().getHostAddress() + ":" + udpSocket.getPort();
+
+            }
+            return "";
         }
     }
 }

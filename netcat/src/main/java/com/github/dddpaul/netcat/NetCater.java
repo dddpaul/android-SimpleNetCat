@@ -1,7 +1,9 @@
 package com.github.dddpaul.netcat;
 
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramSocket;
 import java.net.Socket;
 
 import static com.github.dddpaul.netcat.Utils.isNotEmpty;
@@ -34,10 +36,10 @@ public interface NetCater
             this.op = op;
         }
 
-        public Socket getSocket()
+        public Closeable getSocket()
         {
-            if( object instanceof Socket ) {
-                return (Socket) object;
+            if( object instanceof Socket || object instanceof DatagramSocket ) {
+                return (Closeable) object;
             }
             return null;
         }
