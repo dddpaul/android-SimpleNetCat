@@ -17,7 +17,6 @@ public interface NetCater
     public void cancel();
     public void execute( String ... params );
     public void executeParallel( String ... params );
-    public void setListener( NetCatListener listener );
     public void setInput( InputStream input );
     public void createOutput();
     public void closeOutput();
@@ -29,12 +28,19 @@ public interface NetCater
     class Result
     {
         public Op op;
+        public Proto proto;
         public Object object;
         public Exception exception;
 
         public Result( Op op )
         {
             this.op = op;
+        }
+
+        public Result( Op op, Proto proto )
+        {
+            this.op = op;
+            this.proto = proto;
         }
 
         public Closeable getSocket()

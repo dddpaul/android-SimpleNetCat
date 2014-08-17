@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +25,10 @@ import events.ActivityEvent;
 import events.FragmentEvent;
 
 import java.io.ByteArrayInputStream;
-import java.net.Socket;
 
 import static com.github.dddpaul.netcat.Constants.NETCAT_FRAGMENT_TAG;
 import static com.github.dddpaul.netcat.Constants.RECEIVED_TEXT_KEY;
+import static com.github.dddpaul.netcat.NetCater.*;
 import static com.github.dddpaul.netcat.NetCater.Op.*;
 import static com.github.dddpaul.netcat.NetCater.Result;
 import static com.github.dddpaul.netcat.NetCater.State.*;
@@ -39,6 +38,7 @@ public class ResultFragment extends Fragment implements NetCatListener
     private final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
     private NetCater netCat;
+    private NetCatFragment netCatFragment;
     private TextWatcherAdapter watcher;
 
     @InjectView( R.id.et_input )
@@ -105,10 +105,9 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         super.onResume();
         updateUIWithValidation();
-        NetCatFragment netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
+        netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
         if( netCatFragment != null ) {
             netCat = netCatFragment.getNetCat();
-            netCat.setListener( this );
         }
     }
 
@@ -123,7 +122,8 @@ public class ResultFragment extends Fragment implements NetCatListener
             case LISTEN:
                 netCat.createOutput();
                 netCat.executeParallel( RECEIVE.toString() );
-                EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
+                State state = result.proto == Proto.TCP ? CONNECTED : LISTENING;
+                EventBus.getDefault().post( new ActivityEvent( state ) );
                 break;
             case RECEIVE:
                 // Strip last CR+LF
@@ -187,6 +187,10 @@ public class ResultFragment extends Fragment implements NetCatListener
     {
         this.netCat = netCat;
     }
+    public void setNetCatFragment( NetCatFragment netCatFragment )
+    {
+        this.netCatFragment = netCatFragment;
+    }
 
     public void connect( String connectTo )
     {
@@ -199,7 +203,8 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat.execute( CONNECT.toString(), tokens[0], tokens[1], tokens[2] );
+        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ), this );
+        netCat.execute( CONNECT.toString(), tokens[1], tokens[2] );
     }
 
     public void listen( String listenOn )
@@ -213,7 +218,8 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = listenOn.split( ":" );
-        netCat.execute( LISTEN.toString(), tokens[0], tokens[1] );
+        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ), this );
+        netCat.execute( LISTEN.toString(), tokens[1] );
     }
 
     private void send()
