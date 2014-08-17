@@ -23,6 +23,11 @@ public class UdpNetCat extends NetCat
         super( listener );
     }
 
+    public UdpNetCat()
+    {
+        super();
+    }
+
     @Override
     public void cancel()
     {
@@ -69,19 +74,17 @@ public class UdpNetCat extends NetCat
                 int port;
                 switch( op ) {
                     case CONNECT:
-                        Proto proto = Proto.valueOf( params[1] );
-                        String host = params[2];
-                        port = Integer.parseInt( params[3] );
-                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (%s)", host, port, proto ) );
+                        String host = params[1];
+                        port = Integer.parseInt( params[2] );
+                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (UDP)", host, port ) );
                         socket = new DatagramSocket();
                         socket.connect( new InetSocketAddress( host, port ) );
                         publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
                     case LISTEN:
-                        proto = Proto.valueOf( params[1] );
-                        port = Integer.parseInt( params[2] );
-                        Log.d( CLASS_NAME, String.format( "Listening on %d (%s)", port, proto ) );
+                        port = Integer.parseInt( params[1] );
+                        Log.d( CLASS_NAME, String.format( "Listening on %d (UDP)", port ) );
                         socket = new DatagramSocket( port );
                         result.object = socket;
                         break;

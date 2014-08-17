@@ -16,7 +16,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dddpaul.netcat.NetCater.*;
+import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
 import static com.github.dddpaul.netcat.NetCater.Op.DISCONNECT;
+import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
 import static com.github.dddpaul.netcat.NetCater.Op.RECEIVE;
 import static com.github.dddpaul.netcat.NetCater.Op.SEND;
 import static org.hamcrest.core.Is.is;
@@ -55,6 +57,28 @@ public abstract class NetCatTest extends Assert
         }
         result.add( String.valueOf( port ) );
         return result;
+    }
+
+    public void connect( int port ) throws InterruptedException
+    {
+        netCat.execute( CONNECT.toString(), HOST, String.valueOf( port ) );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertThat( result.op, is( CONNECT ));
+        assertNotNull( result.getSocket() );
+    }
+
+    public void listen( int port ) throws InterruptedException
+    {
+        netCat.execute( LISTEN.toString(), String.valueOf( port ) );
+        latch.await( 5, TimeUnit.SECONDS );
+
+        assertNotNull( result );
+        assertNull( result.exception );
+        assertThat( result.op, is( LISTEN ));
+        assertNotNull( result.getSocket() );
     }
 
     public void disconnect() throws InterruptedException

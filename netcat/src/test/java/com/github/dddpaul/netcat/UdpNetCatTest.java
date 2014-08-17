@@ -15,13 +15,9 @@ import org.robolectric.annotation.Config;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
-import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
 import static com.github.dddpaul.netcat.NetCater.Proto;
 import static com.github.dddpaul.netcat.NetCater.Result;
-import static org.hamcrest.core.Is.is;
 
 @Config( emulateSdk = 18 )
 @RunWith( RobolectricTestRunner.class )
@@ -104,27 +100,5 @@ public class UdpNetCatTest extends NetCatTest implements NetCatListener
         this.result = result;
         Log.e( CLASS_NAME, result.getErrorMessage() );
         latch.countDown();
-    }
-
-    public void connect( int port ) throws InterruptedException
-    {
-        netCat.execute( CONNECT.toString(), Proto.UDP.toString(), HOST, String.valueOf( port ) );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( CONNECT ));
-        assertNotNull( result.getSocket() );
-    }
-
-    public void listen( int port ) throws InterruptedException
-    {
-        netCat.execute( LISTEN.toString(), Proto.UDP.toString(), String.valueOf( port ) );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( LISTEN ));
-        assertNotNull( result.getSocket() );
     }
 }

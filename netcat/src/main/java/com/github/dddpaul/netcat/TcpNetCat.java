@@ -25,6 +25,11 @@ public class TcpNetCat extends NetCat
     private ServerSocketChannel serverChannel;
     private Socket socket;
 
+    public TcpNetCat()
+    {
+        super();
+    }
+
     public TcpNetCat( NetCatListener listener )
     {
         super( listener );
@@ -76,19 +81,17 @@ public class TcpNetCat extends NetCat
                 int port;
                 switch( op ) {
                     case CONNECT:
-                        Proto proto = Proto.valueOf( params[1] );
-                        String host = params[2];
-                        port = Integer.parseInt( params[3] );
-                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (%s)", host, port, proto ) );
+                        String host = params[1];
+                        port = Integer.parseInt( params[2] );
+                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (TCP)", host, port ) );
                         socket = new Socket();
                         socket.connect( new InetSocketAddress( host, port ), 3000 );
                         publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
                     case LISTEN:
-                        proto = Proto.valueOf( params[1] );
-                        port = Integer.parseInt( params[2] );
-                        Log.d( CLASS_NAME, String.format( "Listening on %d (%s)", port, proto ) );
+                        port = Integer.parseInt( params[1] );
+                        Log.d( CLASS_NAME, String.format( "Listening on %d (TCP)", port ) );
                         serverChannel = ServerSocketChannel.open();
                         serverChannel.configureBlocking( false );
                         serverChannel.socket().bind( new InetSocketAddress( port ) );
