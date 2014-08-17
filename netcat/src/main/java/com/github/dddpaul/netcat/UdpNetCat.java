@@ -63,7 +63,7 @@ public class UdpNetCat extends NetCat
         protected Result doInBackground( String... params )
         {
             Op op = Op.valueOf( params[0] );
-            Result result = new Result( op );
+            Result result = new Result( op, Proto.UDP );
             try {
                 Log.d( CLASS_NAME, String.format( "Executing %s operation", op ) );
                 int port;

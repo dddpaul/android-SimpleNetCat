@@ -28,12 +28,19 @@ public interface NetCater
     class Result
     {
         public Op op;
+        public Proto proto;
         public Object object;
         public Exception exception;
 
         public Result( Op op )
         {
             this.op = op;
+        }
+
+        public Result( Op op, Proto proto )
+        {
+            this.op = op;
+            this.proto = proto;
         }
 
         public Closeable getSocket()

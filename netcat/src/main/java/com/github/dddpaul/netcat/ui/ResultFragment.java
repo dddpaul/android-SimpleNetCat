@@ -122,7 +122,8 @@ public class ResultFragment extends Fragment implements NetCatListener
             case LISTEN:
                 netCat.createOutput();
                 netCat.executeParallel( RECEIVE.toString() );
-                EventBus.getDefault().post( new ActivityEvent( CONNECTED ) );
+                State state = result.proto == Proto.TCP ? CONNECTED : LISTENING;
+                EventBus.getDefault().post( new ActivityEvent( state ) );
                 break;
             case RECEIVE:
                 // Strip last CR+LF
