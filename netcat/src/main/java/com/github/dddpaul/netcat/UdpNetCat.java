@@ -79,15 +79,21 @@ public class UdpNetCat extends NetCat
                         Log.d( CLASS_NAME, String.format( "Listening on %d (UDP)", port ) );
                         channel = DatagramChannel.open();
                         channel.socket().bind( new InetSocketAddress( port ) );
+                        channel.configureBlocking( false );
                         result.object = channel.socket();
                         break;
                     case RECEIVE:
                         if( isListening() ) {
-                            // Connect after receive is necessary for further sending
                             SocketAddress remoteSocketAddress = receiveFromChannel();
-                            Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", remoteSocketAddress ) );
-                            channel.connect( remoteSocketAddress );
-                            Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+                            if( task.isCancelled() ) {
+                                stopListening();
+                                result.exception = new Exception( "Listening task is cancelled" );
+                            } else {
+                                // Connect after receive is necessary for further sending
+                                Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", remoteSocketAddress ) );
+                                channel.connect( remoteSocketAddress );
+                                Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+                            }
                         }
                         break;
                     case SEND:
@@ -98,14 +104,9 @@ public class UdpNetCat extends NetCat
                         break;
                     case DISCONNECT:
                         if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
-                        }
-                        if( isListening() ) {
-                            Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", channel.socket().getLocalPort() ) );
-                        }
-                        if( isConnected() || isListening() ) {
-                            channel.close();
-                            channel = null;
+                            disconnect();
+                        } else if( isListening() ) {
+                            stopListening();
                         }
                         break;
                 }
@@ -116,12 +117,18 @@ public class UdpNetCat extends NetCat
             return result;
         }
 
-        private SocketAddress receiveFromChannel() throws IOException
+        private SocketAddress receiveFromChannel() throws IOException, InterruptedException
         {
+            SocketAddress remoteSocketAddress = null;
             ByteBuffer buf = ByteBuffer.allocate( 1024 );
             buf.clear();
-            SocketAddress remoteSocketAddress = channel.receive( buf );
-            output.write( buf.array(), 0, buf.position() );
+            while( remoteSocketAddress == null && !task.isCancelled() ) {
+                remoteSocketAddress = channel.receive( buf );
+                Thread.sleep( 100 );
+            }
+            if( remoteSocketAddress != null ) {
+                output.write( buf.array(), 0, buf.position() );
+            }
             return remoteSocketAddress;
         }
 
@@ -132,6 +139,20 @@ public class UdpNetCat extends NetCat
             if( bytesRead > 0 ) {
                 channel.send( ByteBuffer.wrap( buf ), channel.socket().getRemoteSocketAddress() );
             }
+        }
+
+        private void disconnect() throws IOException
+        {
+            Log.d( CLASS_NAME, String.format( "Disconnecting from %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+            channel.close();
+            channel = null;
+        }
+
+        private void stopListening() throws IOException
+        {
+            Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", channel.socket().getLocalPort() ) );
+            channel.close();
+            channel = null;
         }
     }
 }
