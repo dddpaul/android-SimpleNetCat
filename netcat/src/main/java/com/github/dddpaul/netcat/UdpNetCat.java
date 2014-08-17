@@ -74,7 +74,6 @@ public class UdpNetCat extends NetCat
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (UDP)", host, port ) );
                         socket = new DatagramSocket();
                         socket.connect( new InetSocketAddress( host, port ) );
-                        publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
                     case LISTEN:
@@ -108,7 +107,6 @@ public class UdpNetCat extends NetCat
                         if( isConnected() || isListening() ) {
                             socket.close();
                             socket = null;
-                            publishProgress( IDLE.toString() );
                         }
                         break;
                 }

@@ -81,7 +81,6 @@ public class TcpNetCat extends NetCat
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (TCP)", host, port ) );
                         socket = new Socket();
                         socket.connect( new InetSocketAddress( host, port ), 3000 );
-                        publishProgress( CONNECTED.toString() );
                         result.object = socket;
                         break;
                     case LISTEN:
@@ -97,7 +96,6 @@ public class TcpNetCat extends NetCat
                             if( channel != null ) {
                                 socket = channel.socket();
                                 result.object = socket;
-                                publishProgress( CONNECTED.toString() );
                                 break;
                             }
                         }
@@ -124,7 +122,6 @@ public class TcpNetCat extends NetCat
                             socket.shutdownOutput();
                             socket.close();
                             socket = null;
-                            publishProgress( IDLE.toString() );
                         }
                         if( isListening() ) {
                             stopListening();
