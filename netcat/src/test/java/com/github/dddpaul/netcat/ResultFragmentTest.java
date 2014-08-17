@@ -20,7 +20,6 @@ import org.robolectric.shadows.ShadowToast;
 import static com.github.dddpaul.netcat.NetCater.*;
 import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
 import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
-import static com.github.dddpaul.netcat.NetCater.Proto.*;
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -52,7 +51,7 @@ public class ResultFragmentTest
     {
         MockitoAnnotations.initMocks( this );
         when( netCatFragmentMock.getNetCat() ).thenReturn( netCatMock );
-        when( netCatFragmentMock.getOrCreateNetCat( any( Proto.class ) ) ).thenReturn( netCatMock );
+        when( netCatFragmentMock.getOrCreateNetCat( any( Proto.class ), any( NetCatListener.class) ) ).thenReturn( netCatMock );
         fragment = new ResultFragment();
     }
 

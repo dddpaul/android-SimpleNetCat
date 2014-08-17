@@ -108,7 +108,6 @@ public class ResultFragment extends Fragment implements NetCatListener
         netCatFragment = (NetCatFragment) getFragmentManager().findFragmentByTag( NETCAT_FRAGMENT_TAG );
         if( netCatFragment != null ) {
             netCat = netCatFragment.getNetCat();
-            netCat.setListener( this );
         }
     }
 
@@ -203,8 +202,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = connectTo.split( ":" );
-        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ) );
-        netCat.setListener( this );
+        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ), this );
         netCat.execute( CONNECT.toString(), tokens[1], tokens[2] );
     }
 
@@ -219,8 +217,7 @@ public class ResultFragment extends Fragment implements NetCatListener
             return;
         }
         String[] tokens = listenOn.split( ":" );
-        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ) );
-        netCat.setListener( this );
+        netCat = netCatFragment.getOrCreateNetCat( Proto.valueOf( tokens[0] ), this );
         netCat.execute( LISTEN.toString(), tokens[1] );
     }
 

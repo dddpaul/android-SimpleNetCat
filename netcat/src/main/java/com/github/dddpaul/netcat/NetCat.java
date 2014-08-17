@@ -16,15 +16,7 @@ public class NetCat implements NetCater
     protected InputStream input;
     protected OutputStream output;
 
-    public NetCat() {}
-
     public NetCat( NetCatListener listener )
-    {
-        this.listener = listener;
-    }
-
-    @Override
-    public void setListener( NetCatListener listener )
     {
         this.listener = listener;
     }

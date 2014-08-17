@@ -3,6 +3,7 @@ package com.github.dddpaul.netcat.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.github.dddpaul.netcat.NetCatListener;
 import com.github.dddpaul.netcat.NetCater;
 import com.github.dddpaul.netcat.TcpNetCat;
 import com.github.dddpaul.netcat.UdpNetCat;
@@ -34,19 +35,19 @@ public class NetCatFragment extends Fragment
         return netCat;
     }
 
-    public NetCater getOrCreateNetCat( Proto proto )
+    public NetCater getOrCreateNetCat( Proto proto, NetCatListener listener )
     {
         switch( proto ) {
             case TCP:
                 if( netCat != null && netCat instanceof TcpNetCat ) {
                     return netCat;
                 }
-                return new TcpNetCat();
+                return new TcpNetCat( listener );
             case UDP:
                 if( netCat != null && netCat instanceof UdpNetCat ) {
                     return netCat;
                 }
-                return new UdpNetCat();
+                return new UdpNetCat( listener );
         }
         return null;
     }

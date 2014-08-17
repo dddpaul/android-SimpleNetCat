@@ -25,11 +25,6 @@ public class TcpNetCat extends NetCat
     private ServerSocketChannel serverChannel;
     private Socket socket;
 
-    public TcpNetCat()
-    {
-        super();
-    }
-
     public TcpNetCat( NetCatListener listener )
     {
         super( listener );

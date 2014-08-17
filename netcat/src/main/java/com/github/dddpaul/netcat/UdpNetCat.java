@@ -23,11 +23,6 @@ public class UdpNetCat extends NetCat
         super( listener );
     }
 
-    public UdpNetCat()
-    {
-        super();
-    }
-
     @Override
     public void cancel()
     {
