@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 
 public class UdpNetCat extends NetCat
@@ -85,10 +86,7 @@ public class UdpNetCat extends NetCat
                     case RECEIVE:
                         if( isListening() ) {
                             SocketAddress remoteSocketAddress = receiveFromChannel();
-                            if( task.isCancelled() ) {
-                                stopListening();
-                                result.exception = new Exception( "Listening task is cancelled" );
-                            } else {
+                            if( remoteSocketAddress != null ) {
                                 // Connect after receive is necessary for further sending
                                 Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", remoteSocketAddress ) );
                                 channel.connect( remoteSocketAddress );
@@ -117,17 +115,26 @@ public class UdpNetCat extends NetCat
             return result;
         }
 
-        private SocketAddress receiveFromChannel() throws IOException, InterruptedException
+        private SocketAddress receiveFromChannel() throws Exception
         {
             SocketAddress remoteSocketAddress = null;
-            ByteBuffer buf = ByteBuffer.allocate( 1024 );
-            buf.clear();
-            while( remoteSocketAddress == null && !task.isCancelled() ) {
-                remoteSocketAddress = channel.receive( buf );
-                Thread.sleep( 100 );
-            }
-            if( remoteSocketAddress != null ) {
-                output.write( buf.array(), 0, buf.position() );
+            try {
+                ByteBuffer buf = ByteBuffer.allocate( 1024 );
+                buf.clear();
+                while( remoteSocketAddress == null && !task.isCancelled() ) {
+                    remoteSocketAddress = channel.receive( buf );
+                    Thread.sleep( 100 );
+                }
+                if( remoteSocketAddress != null ) {
+                    output.write( buf.array(), 0, buf.position() );
+                }
+                if( task.isCancelled() ) {
+                    stopListening();
+                    throw new Exception( "Listening task is cancelled" );
+                }
+            } catch( AsynchronousCloseException e ) {
+                // This exception is thrown when socket for receiver thread is closed by netcat
+                Log.w( CLASS_NAME, e.toString() );
             }
             return remoteSocketAddress;
         }
