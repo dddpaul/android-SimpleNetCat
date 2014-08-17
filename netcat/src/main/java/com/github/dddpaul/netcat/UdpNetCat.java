@@ -4,19 +4,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-
-import static com.github.dddpaul.netcat.NetCater.State.CONNECTED;
-import static com.github.dddpaul.netcat.NetCater.State.IDLE;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 
 public class UdpNetCat extends NetCat
 {
     private final String CLASS_NAME = getClass().getSimpleName();
 
     private NetCatTask task;
-    private DatagramSocket socket;
+    private DatagramChannel channel;
 
     public UdpNetCat( NetCatListener listener )
     {
@@ -48,13 +46,13 @@ public class UdpNetCat extends NetCat
     @Override
     public boolean isListening()
     {
-        return socket != null && socket.isBound();
+        return channel != null && channel.isOpen();
     }
 
     @Override
     public boolean isConnected()
     {
-        return socket != null && socket.isConnected();
+        return channel != null && channel.isConnected();
     }
 
     public class NetCatTask extends Task
@@ -72,41 +70,42 @@ public class UdpNetCat extends NetCat
                         String host = params[1];
                         port = Integer.parseInt( params[2] );
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (UDP)", host, port ) );
-                        socket = new DatagramSocket();
-                        socket.connect( new InetSocketAddress( host, port ) );
-                        result.object = socket;
+                        channel = DatagramChannel.open();
+                        channel.connect( new InetSocketAddress( host, port ) );
+                        result.object = channel.socket();
                         break;
                     case LISTEN:
                         port = Integer.parseInt( params[1] );
                         Log.d( CLASS_NAME, String.format( "Listening on %d (UDP)", port ) );
-                        socket = new DatagramSocket( port );
-                        result.object = socket;
+                        channel = DatagramChannel.open();
+                        channel.socket().bind( new InetSocketAddress( port ) );
+                        result.object = channel.socket();
                         break;
                     case RECEIVE:
                         if( isListening() ) {
                             // Connect after receive is necessary for further sending
-                            DatagramPacket packet = receiveFromDatagramSocket();
-                            Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", packet.getSocketAddress() ) );
-                            socket.connect( packet.getSocketAddress() );
-                            Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", packet.getSocketAddress() ) );
+                            SocketAddress remoteSocketAddress = receiveFromChannel();
+                            Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", remoteSocketAddress ) );
+                            channel.connect( remoteSocketAddress );
+                            Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
                         }
                         break;
                     case SEND:
                         if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Sending to %s (UDP)", socket.getRemoteSocketAddress() ) );
-                            sendToDatagramSocket();
+                            Log.d( CLASS_NAME, String.format( "Sending to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+                            sendToChannel();
                         }
                         break;
                     case DISCONNECT:
                         if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s (UDP)", socket.getRemoteSocketAddress() ) );
+                            Log.d( CLASS_NAME, String.format( "Disconnecting from %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
                         }
                         if( isListening() ) {
-                            Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", socket.getLocalPort() ) );
+                            Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", channel.socket().getLocalPort() ) );
                         }
                         if( isConnected() || isListening() ) {
-                            socket.close();
-                            socket = null;
+                            channel.close();
+                            channel = null;
                         }
                         break;
                 }
@@ -117,22 +116,21 @@ public class UdpNetCat extends NetCat
             return result;
         }
 
-        private DatagramPacket receiveFromDatagramSocket() throws IOException
+        private SocketAddress receiveFromChannel() throws IOException
         {
-            byte[] buf = new byte[1024];
-            DatagramPacket packet = new DatagramPacket( buf, buf.length );
-            socket.receive( packet );
-            output.write( packet.getData(), 0, packet.getLength() );
-            return packet;
+            ByteBuffer buf = ByteBuffer.allocate( 1024 );
+            buf.clear();
+            SocketAddress remoteSocketAddress = channel.receive( buf );
+            output.write( buf.array(), 0, buf.position() );
+            return remoteSocketAddress;
         }
 
-        private void sendToDatagramSocket() throws IOException
+        private void sendToChannel() throws IOException
         {
             byte[] buf = new byte[1024];
             int bytesRead = input.read( buf, 0, buf.length );
             if( bytesRead > 0 ) {
-                DatagramPacket packet = new DatagramPacket( buf, bytesRead );
-                socket.send( packet );
+                channel.send( ByteBuffer.wrap( buf ), channel.socket().getRemoteSocketAddress() );
             }
         }
     }
