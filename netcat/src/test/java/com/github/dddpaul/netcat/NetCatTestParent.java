@@ -23,7 +23,7 @@ import static com.github.dddpaul.netcat.NetCater.Op.RECEIVE;
 import static com.github.dddpaul.netcat.NetCater.Op.SEND;
 import static org.hamcrest.core.Is.is;
 
-public abstract class NetCatTest extends Assert
+public abstract class NetCatTestParent extends Assert
 {
     final static String INPUT_TEST = "Input from this test, привет, €, 汉语";
     final static String INPUT_NC = "Input from netcat process, пока, £, 语汉";

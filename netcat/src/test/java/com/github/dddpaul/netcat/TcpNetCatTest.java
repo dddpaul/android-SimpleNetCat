@@ -21,7 +21,7 @@ import static com.github.dddpaul.netcat.NetCater.Result;
 
 @Config( emulateSdk = 18 )
 @RunWith( RobolectricTestRunner.class )
-public class TcpNetCatTest extends NetCatTest implements NetCatListener
+public class TcpNetCatTest extends NetCatTestParent implements NetCatListener
 {
     @Before
     public void setUp() throws Exception
