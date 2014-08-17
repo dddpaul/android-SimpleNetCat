@@ -64,7 +64,7 @@ public class TcpNetCat extends NetCat
         return socket != null && socket.isConnected();
     }
 
-    public class NetCatTask extends NetCat.Task
+    public class NetCatTask extends Task
     {
         @Override
         protected Result doInBackground( String... params )
@@ -131,6 +131,7 @@ public class TcpNetCat extends NetCat
                         if( isListening() ) {
                             stopListening();
                         }
+                        break;
                 }
             } catch( Exception e ) {
                 e.printStackTrace();

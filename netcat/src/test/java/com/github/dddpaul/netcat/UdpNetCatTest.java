@@ -35,7 +35,7 @@ import static org.hamcrest.core.Is.is;
 
 @Config( emulateSdk = 18 )
 @RunWith( RobolectricTestRunner.class )
-public class TcpNetCatTest extends Assert implements NetCatListener
+public class UdpNetCatTest extends Assert implements NetCatListener
 {
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
@@ -54,9 +54,9 @@ public class TcpNetCatTest extends Assert implements NetCatListener
     @Before
     public void setUp() throws Exception
     {
-        netCat = new TcpNetCat( this );
-        inputFromTest = TestUtils.INPUT_TEST;
-        inputFromProcess = TestUtils.INPUT_NC;
+        netCat = new UdpNetCat( this );
+        inputFromTest = TestUtils.INPUT_TEST + "\n";
+        inputFromProcess = TestUtils.INPUT_NC +"\n";
     }
 
     @After
@@ -67,10 +67,10 @@ public class TcpNetCatTest extends Assert implements NetCatListener
     }
 
     @Test
-    public void testTcpConnect() throws IOException, InterruptedException
+    public void testUdpConnect() throws IOException, InterruptedException
     {
         int port = 9998;
-        List<String> listener = TestUtils.prepareNetCatProcess( Proto.TCP, true, port );
+        List<String> listener = TestUtils.prepareNetCatProcess( Proto.UDP, true, port );
         process = new ProcessBuilder( listener ).redirectErrorStream( true ).start();
 
         // Execute connect operation after some delay
@@ -82,12 +82,12 @@ public class TcpNetCatTest extends Assert implements NetCatListener
     }
 
     @Test
-    public void testTcpListen() throws IOException, InterruptedException
+    public void testUdpListen() throws IOException, InterruptedException
     {
         int port = 9997;
 
         // Connect to NetCat by external nc after some delay required for NetCat listener to start
-        final List<String> dialer = TestUtils.prepareNetCatProcess( Proto.TCP, false, port );
+        final List<String> dialer = TestUtils.prepareNetCatProcess( Proto.UDP, false, port );
         new Thread( new Runnable()
         {
             @Override
@@ -105,8 +105,8 @@ public class TcpNetCatTest extends Assert implements NetCatListener
         // Start NetCat listener
         listen( port );
 
-        send();
         receive();
+        send();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class TcpNetCatTest extends Assert implements NetCatListener
 
     public Closeable connect( int port ) throws InterruptedException
     {
-        netCat.execute( CONNECT.toString(), Proto.TCP.toString(), TestUtils.HOST, String.valueOf( port ) );
+        netCat.execute( CONNECT.toString(), Proto.UDP.toString(), TestUtils.HOST, String.valueOf( port ) );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
@@ -144,7 +144,7 @@ public class TcpNetCatTest extends Assert implements NetCatListener
 
     public Closeable listen( int port ) throws InterruptedException
     {
-        netCat.execute( LISTEN.toString(), Proto.TCP.toString(), String.valueOf( port ) );
+        netCat.execute( LISTEN.toString(), Proto.UDP.toString(), String.valueOf( port ) );
         latch.await( 5, TimeUnit.SECONDS );
 
         assertNotNull( result );
