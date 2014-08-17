@@ -1,23 +1,13 @@
-/**
- * Require nc binary (netcat-openbsd package for Debian/Ubuntu).
- */
 package com.github.dddpaul.netcat;
 
 import android.util.Log;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -26,27 +16,23 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.dddpaul.netcat.NetCater.*;
-import static com.github.dddpaul.netcat.NetCater.Op.CONNECT;
 import static com.github.dddpaul.netcat.NetCater.Op.DISCONNECT;
-import static com.github.dddpaul.netcat.NetCater.Op.LISTEN;
 import static com.github.dddpaul.netcat.NetCater.Op.RECEIVE;
 import static com.github.dddpaul.netcat.NetCater.Op.SEND;
 import static org.hamcrest.core.Is.is;
 
-@Config( emulateSdk = 18 )
-@RunWith( RobolectricTestRunner.class )
-public class NetCatTest extends Assert implements NetCatListener
+public abstract class NetCatTest extends Assert
 {
     final static String INPUT_TEST = "Input from this test, привет, €, 汉语";
     final static String INPUT_NC = "Input from netcat process, пока, £, 语汉";
     final static String HOST = "localhost";
     final String CLASS_NAME = ( (Object) this ).getClass().getSimpleName();
 
-    NetCater netCat;
-    Result result;
-    CountDownLatch latch;
-    Process process;
-    String inputFromTest, inputFromProcess;
+    protected NetCater netCat;
+    protected Result result;
+    protected CountDownLatch latch;
+    protected Process process;
+    protected String inputFromTest, inputFromProcess;
 
     @BeforeClass
     public static void init()
@@ -54,155 +40,21 @@ public class NetCatTest extends Assert implements NetCatListener
         ShadowLog.stream = System.out;
     }
 
-    @Before
-    public void setUp() throws Exception
+    public List<String> prepareNetCatProcess( Proto proto, boolean listen, int port )
     {
-        netCat = new NetCat( this );
-        inputFromTest = INPUT_TEST;
-        inputFromProcess = INPUT_NC;
-    }
-
-    @After
-    public void tearDown() throws InterruptedException
-    {
-        disconnect();
-        process.destroy();
-    }
-
-    @Test
-    public void testTCPConnect() throws IOException, InterruptedException
-    {
-        startConnectTest( Proto.TCP );
-    }
-
-    @Test
-    public void testTCPListen() throws IOException, InterruptedException
-    {
-        startListenTest( Proto.TCP );
-    }
-
-    @Test
-    public void testUDPConnect() throws IOException, InterruptedException
-    {
-        inputFromTest = inputFromTest + "\n";
-        inputFromProcess = inputFromProcess + "\n";
-        startConnectTest( Proto.UDP );
-    }
-
-    @Test
-    public void testUDPListen() throws IOException, InterruptedException
-    {
-        inputFromTest = inputFromTest + "\n";
-        inputFromProcess = inputFromProcess + "\n";
-        startListenTest( Proto.UDP );
-    }
-
-    public void startConnectTest( Proto proto ) throws InterruptedException, IOException
-    {
-        String port = "9998";
-
-        // Start external nc listener
-        List<String> nc = new ArrayList<>();
-        nc.add( "nc" );
-        nc.add( "-v" );
+        List<String> result = new ArrayList<>();
+        result.add( "nc" );
+        result.add( "-v" );
         if( proto == Proto.UDP ) {
-            nc.add( "-u" );
+            result.add( "-u" );
         }
-        nc.add( "-l" );
-        nc.add( port );
-        process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
-
-        // Execute connect operation after some delay
-        Thread.sleep( 500 );
-        connect( proto, port );
-
-        send();
-        receive();
-    }
-
-    public void startListenTest( Proto proto ) throws InterruptedException, IOException
-    {
-        String port = "9997";
-
-        // Connect to NetCat by external nc after some delay required for NetCat listener to start
-        final List<String> nc = new ArrayList<>();
-        nc.add( "nc" );
-        nc.add( "-v" );
-        if( proto == Proto.UDP ) {
-            nc.add( "-u" );
-        }
-        nc.add( HOST );
-        nc.add( port );
-        new Thread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    Thread.sleep( 500 );
-                    process = new ProcessBuilder( nc ).redirectErrorStream( true ).start();
-                } catch( Exception e ) {
-                    e.printStackTrace();
-                }
-            }
-        } ).start();
-
-        // Start NetCat listener
-        listen( proto, port );
-
-        if( proto == Proto.TCP ) {
-            send();
-            receive();
+        if( listen ) {
+            result.add( "-l" );
         } else {
-            // UDP listener must wait for receive to move into connected state then send
-            receive();
-            send();
+            result.add( HOST );
         }
-    }
-
-    @Override
-    public void netCatIsStarted()
-    {
-        latch = new CountDownLatch( 1 );
-    }
-
-    @Override
-    public void netCatIsCompleted( Result result )
-    {
-        this.result = result;
-        latch.countDown();
-    }
-
-    @Override
-    public void netCatIsFailed( Result result )
-    {
-        this.result = result;
-        Log.e( CLASS_NAME, result.getErrorMessage() );
-        latch.countDown();
-    }
-
-    public Closeable connect( Proto proto, String port ) throws InterruptedException
-    {
-        netCat.execute( CONNECT.toString(), proto.toString(), HOST, port );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( CONNECT ));
-        assertNotNull( result.getSocket() );
-        return result.getSocket();
-    }
-
-    public Closeable listen( Proto proto, String port ) throws InterruptedException
-    {
-        netCat.execute( LISTEN.toString(), proto.toString(), port );
-        latch.await( 5, TimeUnit.SECONDS );
-
-        assertNotNull( result );
-        assertNull( result.exception );
-        assertThat( result.op, is( LISTEN ));
-        assertNotNull( result.getSocket() );
-        return result.getSocket();
+        result.add( String.valueOf( port ) );
+        return result;
     }
 
     public void disconnect() throws InterruptedException
