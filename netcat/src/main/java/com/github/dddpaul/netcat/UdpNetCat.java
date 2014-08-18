@@ -123,15 +123,15 @@ public class UdpNetCat extends NetCat
         {
             SocketAddress remoteSocketAddress = null;
             try {
-                ByteBuffer buf = ByteBuffer.allocate( 1024 );
+                ByteBuffer buf = ByteBuffer.allocate( Constants.MAX_PACKET_SIZE );
                 buf.clear();
                 while( !task.isCancelled() ) {
-                    int oldPosition = buf.position();
                     remoteSocketAddress = channel.receive( buf );
                     if( remoteSocketAddress != null ) {
-                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - oldPosition - 1, remoteSocketAddress ));
-                        output.write( buf.array(), oldPosition, buf.position() );
+                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - 1, remoteSocketAddress ));
+                        output.write( buf.array(), 0, buf.position() );
                         publishProgress( CONNECTED.toString(), output.toString() );
+                        buf.clear();
                     }
                     Thread.sleep( 100 );
                 }

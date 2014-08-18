@@ -8,4 +8,5 @@ public class Constants
     public static final String NETCAT_STATE_KEY = "netcat_state";
     public static final String RECEIVED_TEXT_KEY = "received_text";
     public static final String NETCAT_FRAGMENT_TAG = "netcat_fragment_tag";
+    public static int MAX_PACKET_SIZE = 2<<16 - 1 ;
 }
