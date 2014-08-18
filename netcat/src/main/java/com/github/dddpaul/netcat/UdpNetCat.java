@@ -66,7 +66,7 @@ public class UdpNetCat extends NetCat
             Op op = Op.valueOf( params[0] );
             Result result = new Result( op, Proto.UDP );
             try {
-                Log.d( CLASS_NAME, String.format( "Executing %s operation (UDP)", op ) );
+                Log.i( CLASS_NAME, String.format( "Executing %s operation (UDP)", op ) );
                 int port;
                 switch( op ) {
                     case CONNECT:
@@ -75,7 +75,7 @@ public class UdpNetCat extends NetCat
                         channel = DatagramChannel.open();
                         channel.connect( new InetSocketAddress( host, port ) );
                         channel.configureBlocking( false );
-                        Log.i( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+                        Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
                         result.object = channel.socket();
                         break;
                     case LISTEN:
