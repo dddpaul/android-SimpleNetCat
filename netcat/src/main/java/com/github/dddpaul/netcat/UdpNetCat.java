@@ -126,13 +126,14 @@ public class UdpNetCat extends NetCat
                 ByteBuffer buf = ByteBuffer.allocate( 1024 );
                 buf.clear();
                 while( !task.isCancelled() ) {
+                    int oldPosition = buf.position();
                     remoteSocketAddress = channel.receive( buf );
                     if( remoteSocketAddress != null ) {
-                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - 1, remoteSocketAddress ));
-                        output.write( buf.array(), 0, buf.position() );
+                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - oldPosition - 1, remoteSocketAddress ));
+                        output.write( buf.array(), oldPosition, buf.position() );
                         publishProgress( CONNECTED.toString(), output.toString() );
                     }
-                    Thread.sleep( 1000 );
+                    Thread.sleep( 100 );
                 }
                 if( task.isCancelled() ) {
                     stopListening();
