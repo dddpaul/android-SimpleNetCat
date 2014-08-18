@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 
+import static com.github.dddpaul.netcat.NetCater.State.CONNECTED;
+
 public class UdpNetCat extends NetCat
 {
     private final String CLASS_NAME = getClass().getSimpleName();
@@ -73,6 +75,8 @@ public class UdpNetCat extends NetCat
                         Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (UDP)", host, port ) );
                         channel = DatagramChannel.open();
                         channel.connect( new InetSocketAddress( host, port ) );
+                        channel.configureBlocking( false );
+                        Log.i( CLASS_NAME, "Connected to " + channel.socket().getRemoteSocketAddress() );
                         result.object = channel.socket();
                         break;
                     case LISTEN:
@@ -121,12 +125,14 @@ public class UdpNetCat extends NetCat
             try {
                 ByteBuffer buf = ByteBuffer.allocate( 1024 );
                 buf.clear();
-                while( remoteSocketAddress == null && !task.isCancelled() ) {
+                while( !task.isCancelled() ) {
                     remoteSocketAddress = channel.receive( buf );
-                    Thread.sleep( 100 );
-                }
-                if( remoteSocketAddress != null ) {
-                    output.write( buf.array(), 0, buf.position() );
+                    if( remoteSocketAddress != null ) {
+                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - 1, remoteSocketAddress ));
+                        output.write( buf.array(), 0, buf.position() );
+                        publishProgress( CONNECTED.toString(), output.toString() );
+                    }
+                    Thread.sleep( 1000 );
                 }
                 if( task.isCancelled() ) {
                     stopListening();

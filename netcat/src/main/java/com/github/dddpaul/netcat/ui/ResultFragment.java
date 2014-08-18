@@ -174,6 +174,9 @@ public class ResultFragment extends Fragment implements NetCatListener
                     netCat.cancel();
                 }
                 break;
+            case HANDLE_RECEIVED_DATA:
+                outputView.setText( event.data );
+                break;
             case CLEAR_OUTPUT_VIEW:
                 outputView.setText( "" );
                 EventBus.getDefault().post( new ActivityEvent( OUTPUT_VIEW_CLEARED ) );
