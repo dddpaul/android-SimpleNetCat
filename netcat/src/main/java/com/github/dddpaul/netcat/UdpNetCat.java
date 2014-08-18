@@ -66,17 +66,16 @@ public class UdpNetCat extends NetCat
             Op op = Op.valueOf( params[0] );
             Result result = new Result( op, Proto.UDP );
             try {
-                Log.d( CLASS_NAME, String.format( "Executing %s operation", op ) );
+                Log.i( CLASS_NAME, String.format( "Executing %s operation (UDP)", op ) );
                 int port;
                 switch( op ) {
                     case CONNECT:
                         String host = params[1];
                         port = Integer.parseInt( params[2] );
-                        Log.d( CLASS_NAME, String.format( "Connecting to %s:%d (UDP)", host, port ) );
                         channel = DatagramChannel.open();
                         channel.connect( new InetSocketAddress( host, port ) );
                         channel.configureBlocking( false );
-                        Log.i( CLASS_NAME, "Connected to " + channel.socket().getRemoteSocketAddress() );
+                        Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
                         result.object = channel.socket();
                         break;
                     case LISTEN:
@@ -89,18 +88,11 @@ public class UdpNetCat extends NetCat
                         break;
                     case RECEIVE:
                         if( isListening() ) {
-                            SocketAddress remoteSocketAddress = receiveFromChannel();
-                            if( remoteSocketAddress != null ) {
-                                // Connect after receive is necessary for further sending
-                                Log.d( CLASS_NAME, String.format( "Received data from %s (UDP)", remoteSocketAddress ) );
-                                channel.connect( remoteSocketAddress );
-                                Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
-                            }
+                            receiveFromChannel();
                         }
                         break;
                     case SEND:
                         if( isConnected() ) {
-                            Log.d( CLASS_NAME, String.format( "Sending to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
                             sendToChannel();
                         }
                         break;
@@ -119,20 +111,33 @@ public class UdpNetCat extends NetCat
             return result;
         }
 
-        private SocketAddress receiveFromChannel() throws Exception
+        private void receiveFromChannel() throws Exception
         {
             SocketAddress remoteSocketAddress = null;
+            int bytesReceived = 0;
             try {
-                ByteBuffer buf = ByteBuffer.allocate( 1024 );
+                ByteBuffer buf = ByteBuffer.allocate( Constants.RECEIVE_BUFFER_LIMIT );
                 buf.clear();
                 while( !task.isCancelled() ) {
-                    remoteSocketAddress = channel.receive( buf );
-                    if( remoteSocketAddress != null ) {
-                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", buf.position() - 1, remoteSocketAddress ));
+                    if( isListening() && !isConnected() ) {
+                        remoteSocketAddress = channel.receive( buf );
+                        bytesReceived = buf.position() - 1;
+                    }
+                    if( isConnected() ) {
+                        bytesReceived = channel.read( buf );
+                    }
+                    if( bytesReceived > 0 ) {
+                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", bytesReceived, remoteSocketAddress ));
                         output.write( buf.array(), 0, buf.position() );
                         publishProgress( CONNECTED.toString(), output.toString() );
+                        buf.clear();
+                        // Connect after receive is necessary for further sending
+                        if( !isConnected() ) {
+                            channel.connect( remoteSocketAddress );
+                            Log.d( CLASS_NAME, String.format( "Connected to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
+                        }
                     }
-                    Thread.sleep( 1000 );
+                    Thread.sleep( 100 );
                 }
                 if( task.isCancelled() ) {
                     stopListening();
@@ -142,15 +147,15 @@ public class UdpNetCat extends NetCat
                 // This exception is thrown when socket for receiver thread is closed by netcat
                 Log.w( CLASS_NAME, e.toString() );
             }
-            return remoteSocketAddress;
         }
 
         private void sendToChannel() throws IOException
         {
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[Constants.SEND_BUFFER_LIMIT];
             int bytesRead = input.read( buf, 0, buf.length );
             if( bytesRead > 0 ) {
-                channel.send( ByteBuffer.wrap( buf ), channel.socket().getRemoteSocketAddress() );
+                int bytesSent = channel.send( ByteBuffer.wrap( buf, 0, bytesRead ), channel.socket().getRemoteSocketAddress() );
+                Log.d( CLASS_NAME, String.format( "%d bytes was sent to %s (UDP)", bytesSent, channel.socket().getRemoteSocketAddress() ) );
             }
         }
 

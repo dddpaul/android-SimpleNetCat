@@ -116,7 +116,7 @@ public class NetCat implements NetCater
         protected void onPostExecute( Result result )
         {
             if( result.exception == null ) {
-                Log.d( CLASS_NAME, String.format( "%s operation is completed", result.op ) );
+                Log.i( CLASS_NAME, String.format( "%s operation (%s) is completed", result.op, result.proto ) );
                 listener.netCatIsCompleted( result );
             } else {
                 Log.e( CLASS_NAME, result.getErrorMessage() );
