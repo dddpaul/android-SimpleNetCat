@@ -116,7 +116,7 @@ public class UdpNetCat extends NetCat
             SocketAddress remoteSocketAddress = null;
             int bytesReceived = 0;
             try {
-                ByteBuffer buf = ByteBuffer.allocate( Constants.MAX_PACKET_SIZE );
+                ByteBuffer buf = ByteBuffer.allocate( Constants.RECEIVE_BUFFER_LIMIT );
                 buf.clear();
                 while( !task.isCancelled() ) {
                     if( isListening() && !isConnected() ) {
@@ -151,11 +151,11 @@ public class UdpNetCat extends NetCat
 
         private void sendToChannel() throws IOException
         {
-            Log.d( CLASS_NAME, String.format( "Sending to %s (UDP)", channel.socket().getRemoteSocketAddress() ) );
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[Constants.SEND_BUFFER_LIMIT];
             int bytesRead = input.read( buf, 0, buf.length );
             if( bytesRead > 0 ) {
-                channel.send( ByteBuffer.wrap( buf ), channel.socket().getRemoteSocketAddress() );
+                int bytesSent = channel.send( ByteBuffer.wrap( buf, 0, bytesRead ), channel.socket().getRemoteSocketAddress() );
+                Log.d( CLASS_NAME, String.format( "%d bytes was sent to %s (UDP)", bytesSent, channel.socket().getRemoteSocketAddress() ) );
             }
         }
 
