@@ -160,6 +160,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         switch( event.netCatState ) {
             case CONNECTED:
             case LISTENING:
+            case CONNECTING:
                 cancelItem.setVisible( true );
                 shareItem.setVisible( false );
                 statusItem.setVisible( true );

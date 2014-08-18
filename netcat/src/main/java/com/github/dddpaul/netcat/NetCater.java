@@ -10,8 +10,8 @@ import static com.github.dddpaul.netcat.Utils.isNotEmpty;
 
 public interface NetCater
 {
-    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT_VIEW }
-    enum State { IDLE, CONNECTED, LISTENING, OUTPUT_VIEW_CLEARED }
+    enum Op { CONNECT, LISTEN, RECEIVE, SEND, DISCONNECT, CLEAR_OUTPUT_VIEW, HANDLE_RECEIVED_DATA}
+    enum State { IDLE, CONNECTED, LISTENING, OUTPUT_VIEW_CLEARED, CONNECTING }
     enum Proto { TCP, UDP }
 
     public void cancel();

@@ -7,6 +7,9 @@ import java.io.*;
 
 import de.greenrobot.event.EventBus;
 import events.ActivityEvent;
+import events.FragmentEvent;
+
+import static com.github.dddpaul.netcat.NetCater.Op.*;
 
 public class NetCat implements NetCater
 {
@@ -104,6 +107,9 @@ public class NetCat implements NetCater
         {
             State state = State.valueOf( String.valueOf( values[0] ) );
             EventBus.getDefault().post( new ActivityEvent( state ) );
+            if( values.length == 2 ) {
+                EventBus.getDefault().post( new FragmentEvent( HANDLE_RECEIVED_DATA, values[1] ));
+            }
         }
 
         @Override
