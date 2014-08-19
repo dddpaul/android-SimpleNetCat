@@ -48,12 +48,6 @@ public class NetCat implements NetCater
         output = null;
     }
 
-    @Override
-    public OutputStream getOutput()
-    {
-        return output;
-    }
-
     /**
      * Strip last CR+LF
      */

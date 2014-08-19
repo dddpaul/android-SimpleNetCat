@@ -127,11 +127,7 @@ public class ResultFragment extends Fragment implements NetCatListener
                 EventBus.getDefault().post( new ActivityEvent( state ) );
                 break;
             case RECEIVE:
-                // Strip last CR+LF
-                String s = netCat.getOutput().toString();
-                if( s.length() > 0 ) {
-                    outputView.setText( s.substring( 0, s.length() - 1 ) );
-                }
+                outputView.setText( netCat.getOutputString() );
                 netCat.closeOutput();
                 if( netCat.isConnected() ) {
                     disconnect();
