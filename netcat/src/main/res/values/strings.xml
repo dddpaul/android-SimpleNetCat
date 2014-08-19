@@ -23,6 +23,7 @@
     <string name="error_port_format">Digits is expected</string>
     <string name="label_text_to_send">Text to send:</string>
     <string name="label_received_text">Received text:</string>
-    <string name="label_tcp_udp">Use UDP instead of TCP (experimental)</string>
+    <string name="label_tcp_udp">Use UDP instead of TCP</string>
+    <string name="label_udp_tooltip">Send \"~.\" from remote side to disconnect</string>
 
 </resources>
