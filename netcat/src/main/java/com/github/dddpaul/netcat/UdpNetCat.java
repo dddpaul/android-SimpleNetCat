@@ -14,6 +14,8 @@ import static com.github.dddpaul.netcat.NetCater.State.CONNECTED;
 
 public class UdpNetCat extends NetCat
 {
+    public static final String DISCONNECT_SEQUENCE = "~.";
+
     private final String CLASS_NAME = getClass().getSimpleName();
 
     private NetCatTask task;
@@ -127,7 +129,11 @@ public class UdpNetCat extends NetCat
                         bytesReceived = channel.read( buf );
                     }
                     if( bytesReceived > 0 ) {
-                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s", bytesReceived, remoteSocketAddress ));
+                        Log.d( CLASS_NAME, String.format( "%d bytes was received from %s (UDP)", bytesReceived, remoteSocketAddress ) );
+                        if( DISCONNECT_SEQUENCE.equals( new String( buf.array(), 0, buf.position() ).trim() ) ) {
+                            Log.d( CLASS_NAME, String.format( "Disconnect sequence was received from %s (UDP)", remoteSocketAddress ) );
+                            break;
+                        }
                         output.write( buf.array(), 0, buf.position() );
                         publishProgress( CONNECTED.toString(), output.toString() );
                         buf.clear();

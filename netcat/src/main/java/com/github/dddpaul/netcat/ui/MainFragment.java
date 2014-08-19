@@ -14,6 +14,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.dddpaul.netcat.Constants;
 import com.github.dddpaul.netcat.R;
@@ -25,6 +27,7 @@ import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import events.FragmentEvent;
@@ -48,6 +51,9 @@ public class MainFragment extends Fragment
 
     @InjectView( R.id.c_tcp_udp )
     protected CheckBox udpCheckbox;
+
+    @InjectView( R.id.tv_udp_tooltip )
+    protected TextView udpTooltip;
 
     private SharedPreferences prefs;
     private Set<String> connectToSet;
@@ -109,6 +115,16 @@ public class MainFragment extends Fragment
         Proto proto = udpCheckbox.isChecked() ? Proto.UDP : Proto.TCP;
         String listenOn = proto + ":" + listenOnText.getText().toString();
         EventBus.getDefault().post( new FragmentEvent( LISTEN, listenOn ) );
+    }
+
+    @OnCheckedChanged( R.id.c_tcp_udp )
+    protected void onUdpChecked( boolean checked )
+    {
+        if( checked ) {
+            udpTooltip.setVisibility( View.VISIBLE );
+        } else {
+            udpTooltip.setVisibility( View.INVISIBLE );
+        }
     }
 
     @Override

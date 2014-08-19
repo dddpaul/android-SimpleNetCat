@@ -123,9 +123,23 @@ public abstract class NetCatTestParent extends Assert
         }
 
         // Send string from external nc process
-        process.getOutputStream().write( inputFromProcess.getBytes() );
-        process.getOutputStream().flush();
-        process.getOutputStream().close();
+        new Thread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    process.getOutputStream().write( inputFromProcess.getBytes() );
+                    process.getOutputStream().flush();
+                    Thread.sleep( 500 );
+                    process.getOutputStream().write( UdpNetCat.DISCONNECT_SEQUENCE.getBytes() );
+                    process.getOutputStream().flush();
+                    process.getOutputStream().close();
+                } catch( Exception e ) {
+                    e.printStackTrace();
+                }
+            }
+        } ).start();
 
         // Receive string from external nc process
         netCat.createOutput();
@@ -136,6 +150,6 @@ public abstract class NetCatTestParent extends Assert
         assertThat( result.op, is( RECEIVE ));
         String line = netCat.getOutputString();
         Log.i( CLASS_NAME, line  );
-        assertThat( line, is( INPUT_NC ));
+        assertThat( line, is( inputFromProcess + UdpNetCat.DISCONNECT_SEQUENCE ));
     }
 }
