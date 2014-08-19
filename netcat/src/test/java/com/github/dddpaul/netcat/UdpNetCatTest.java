@@ -77,21 +77,6 @@ public class UdpNetCatTest extends NetCatTestParent implements NetCatListener
         // Start NetCat listener
         listen( port );
 
-        // Stop receiving after some delay required for NetCat to receive test data
-        new Thread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    Thread.sleep( 1000 );
-                    netCat.cancel();
-                } catch( Exception e ) {
-                    e.printStackTrace();
-                }
-            }
-        } ).start();
-
         receive();
         send();
     }
