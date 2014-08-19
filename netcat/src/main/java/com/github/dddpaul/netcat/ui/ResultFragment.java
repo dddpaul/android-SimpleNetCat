@@ -237,7 +237,7 @@ public class ResultFragment extends Fragment implements NetCatListener
 
     private void updateUIWithValidation()
     {
-        if( Utils.isActive( netCat ) ) {
+        if( netCat != null && netCat.isConnected() ) {
             sendButton.setEnabled( Utils.populated( inputText ) );
         } else {
             sendButton.setEnabled( false );
