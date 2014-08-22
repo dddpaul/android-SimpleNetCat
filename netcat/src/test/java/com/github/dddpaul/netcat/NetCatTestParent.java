@@ -131,9 +131,11 @@ public abstract class NetCatTestParent extends Assert
                 try {
                     process.getOutputStream().write( inputFromProcess.getBytes() );
                     process.getOutputStream().flush();
-                    Thread.sleep( 500 );
-                    process.getOutputStream().write( UdpNetCat.DISCONNECT_SEQUENCE.getBytes() );
-                    process.getOutputStream().flush();
+                    if( netCat instanceof UdpNetCat ) {
+                        Thread.sleep( 500 );
+                        process.getOutputStream().write( UdpNetCat.DISCONNECT_SEQUENCE.getBytes() );
+                        process.getOutputStream().flush();
+                    }
                     process.getOutputStream().close();
                 } catch( Exception e ) {
                     e.printStackTrace();
@@ -150,6 +152,6 @@ public abstract class NetCatTestParent extends Assert
         assertThat( result.op, is( RECEIVE ));
         String line = netCat.getOutputString();
         Log.i( CLASS_NAME, line  );
-        assertThat( line, is( inputFromProcess + UdpNetCat.DISCONNECT_SEQUENCE ));
+        assertThat( line, is( INPUT_NC ));
     }
 }
