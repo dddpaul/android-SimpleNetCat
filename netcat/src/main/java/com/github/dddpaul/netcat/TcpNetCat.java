@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.AsynchronousCloseException;
@@ -105,7 +106,7 @@ public class TcpNetCat extends NetCat
                         }
                         break;
                     case RECEIVE:
-                        if( isConnected() ){
+                        if( isConnected() ) {
                             Log.d( CLASS_NAME, String.format( "Receiving from %s (TCP)", socket.getRemoteSocketAddress() ) );
                             receiveFromSocket();
                         }
@@ -129,6 +130,9 @@ public class TcpNetCat extends NetCat
                         break;
                 }
             } catch( Exception e ) {
+                if( e instanceof BindException ) {
+                    stopListening();
+                }
                 e.printStackTrace();
                 result.exception = e;
             }
@@ -163,10 +167,14 @@ public class TcpNetCat extends NetCat
             }
         }
 
-        private void stopListening() throws IOException
+        private void stopListening()
         {
             Log.d( CLASS_NAME, String.format( "Stop listening on %d (TCP)", serverChannel.socket().getLocalPort() ) );
-            serverChannel.close();
+            try {
+                serverChannel.close();
+            } catch( IOException e ) {
+                e.printStackTrace();
+            }
             serverChannel = null;
         }
     }

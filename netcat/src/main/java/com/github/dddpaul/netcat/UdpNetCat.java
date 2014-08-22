@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -107,6 +108,9 @@ public class UdpNetCat extends NetCat
                         break;
                 }
             } catch( Exception e ) {
+                if( e instanceof BindException ) {
+                    stopListening();
+                }
                 e.printStackTrace();
                 result.exception = e;
             }
@@ -172,10 +176,14 @@ public class UdpNetCat extends NetCat
             channel = null;
         }
 
-        private void stopListening() throws IOException
+        private void stopListening()
         {
             Log.d( CLASS_NAME, String.format( "Stop listening on %d (UDP)", channel.socket().getLocalPort() ) );
-            channel.close();
+            try {
+                channel.close();
+            } catch( IOException e ) {
+                e.printStackTrace();
+            }
             channel = null;
         }
     }
