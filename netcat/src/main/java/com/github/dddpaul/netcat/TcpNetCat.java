@@ -143,24 +143,27 @@ public class TcpNetCat extends NetCat
         {
             BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
             PrintWriter writer = new PrintWriter( output );
-            transferStreams( reader, writer );
+            transferStreams( reader, writer, true );
         }
 
         private void sendToSocket() throws IOException
         {
             BufferedReader reader = new BufferedReader( new InputStreamReader( input ) );
             PrintWriter writer = new PrintWriter( socket.getOutputStream() );
-            transferStreams( reader, writer );
+            transferStreams( reader, writer, false );
         }
 
-        private void transferStreams( BufferedReader reader, PrintWriter writer ) throws IOException
+        private void transferStreams( BufferedReader reader, PrintWriter writer, boolean receive ) throws IOException
         {
             try {
                 String line;
                 while( ( line = reader.readLine() ) != null ) {
                     writer.println( line );
                     writer.flush();
-                }
+                    if( receive ) {
+                        publishProgress( CONNECTED.toString(), output.toString() );
+                    }
+               }
             } catch( AsynchronousCloseException e ) {
                 // This exception is thrown when socket for receiver thread is closed by netcat
                 Log.w( CLASS_NAME, e.toString() );
