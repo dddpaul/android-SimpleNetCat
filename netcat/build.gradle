@@ -3,8 +3,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.+'
-        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.0.+'
+        classpath 'com.android.tools.build:gradle:1.0.+'
+        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.+'
     }
 }
 apply plugin: 'com.android.application'
@@ -76,7 +76,7 @@ dependencies {
     testCompile('com.squareup:fest-android:1.0.+')
     testCompile('junit:junit:4.11')
     testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile('org.robolectric:robolectric:2.3+') {
+    testCompile('org.robolectric:robolectric:2.+') {
         exclude module: 'classworlds'
         exclude module: 'maven-artifact'
         exclude module: 'maven-artifact-manager'
